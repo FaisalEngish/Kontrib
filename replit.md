@@ -115,10 +115,13 @@ The application is designed to be easily deployable on platforms like Replit, Ve
 
 ## Recent Changes (July 30, 2025)
 
-### Custom URL Feature Implementation
-- Added `customSlug` field to groups schema for branded URL generation (kontrib.app/groupname format)
-- Updated WhatsApp message template with professional branding, emojis, and hashtags
-- Enhanced admin dashboard to display custom URLs prominently for easy sharing
-- Fixed date validation issue in group creation API to properly handle deadline strings
-- Added API endpoint `/api/groups/slug/:slug` for fetching groups by custom slug
-- All groups now automatically generate clean, shareable custom URLs from their names
+### Hierarchical Project Management Implementation
+- **Simplified Groups Architecture**: Removed targetAmount, collectedAmount, and deadline fields from groups
+- **Project-Based Financial Tracking**: All financial data (targets, amounts, deadlines) moved to project level
+- **Hierarchical URLs**: Projects now have unique URLs in format kontrib.app/groupname/projectname
+- **Custom Slug Generation**: Added customSlug field to projects for hierarchical URL structure
+- **Updated Storage Layer**: Modified storage interface to handle simplified groups and project management
+- **New API Endpoints**: Added project management routes with hierarchical slug support
+- **Frontend Components**: Created CreateProjectModal and updated admin dashboard for project management
+- **Schema Updates**: Restructured database schema to support project-focused architecture
+- **WhatsApp Integration Maintained**: Groups still generate shareable WhatsApp links for member registration

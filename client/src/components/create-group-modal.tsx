@@ -13,9 +13,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 
-const createGroupFormSchema = insertGroupSchema.extend({
-  targetAmount: z.string().min(1, "Target amount is required"),
-});
+const createGroupFormSchema = insertGroupSchema;
 
 type CreateGroupFormData = z.infer<typeof createGroupFormSchema>;
 
@@ -34,8 +32,6 @@ export function CreateGroupModal({ open, onOpenChange }: CreateGroupModalProps) 
     defaultValues: {
       name: "",
       description: "",
-      targetAmount: "",
-      deadline: undefined,
     },
   });
 
@@ -92,48 +88,11 @@ export function CreateGroupModal({ open, onOpenChange }: CreateGroupModalProps) 
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="targetAmount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Target Amount (₦)</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      placeholder="1000000" 
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <div className="bg-blue-50 p-3 rounded-lg">
               <p className="text-sm text-blue-700">
                 📱 <strong>WhatsApp Integration:</strong> A shareable WhatsApp message with the group registration link will be automatically generated after creating the group.
               </p>
             </div>
-
-            <FormField
-              control={form.control}
-              name="deadline"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Collection Deadline (Optional)</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="date" 
-                      {...field} 
-                      value={field.value ? new Date(field.value).toISOString().split('T')[0] : ""}
-                      onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <FormField
               control={form.control}

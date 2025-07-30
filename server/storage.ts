@@ -122,16 +122,16 @@ export class MemStorage implements IStorage {
     return adminGroups.map(group => {
       const members = Array.from(this.groupMembers.values()).filter(member => member.groupId === group.id);
       const memberCount = members.length;
-      const completionRate = group.targetAmount ? 
-        Math.round((Number(group.collectedAmount) / Number(group.targetAmount)) * 100) : 0;
       
-      const pendingPayments = members.filter(member => {
-        const contributions = Array.from(this.contributions.values())
-          .filter(contrib => contrib.groupId === group.id && contrib.userId === member.userId);
-        const totalContributed = contributions.reduce((sum, contrib) => sum + Number(contrib.amount), 0);
-        const expectedAmount = Number(group.targetAmount) / memberCount;
-        return totalContributed < expectedAmount;
-      }).length;
+      // Calculate stats based on projects instead of group target
+      const groupProjects = Array.from(this.projects.values()).filter(project => project.groupId === group.id);
+      const totalProjectTarget = groupProjects.reduce((sum, project) => sum + Number(project.targetAmount), 0);
+      const totalProjectCollected = groupProjects.reduce((sum, project) => sum + Number(project.collectedAmount), 0);
+      
+      const completionRate = totalProjectTarget > 0 ? 
+        Math.round((totalProjectCollected / totalProjectTarget) * 100) : 0;
+      
+      const pendingPayments = 0; // Will be calculated based on project contributions
 
       return {
         ...group,
@@ -167,12 +167,8 @@ export class MemStorage implements IStorage {
       registrationLink,
       customSlug: groupSlug,
       adminId,
-      collectedAmount: "0",
       createdAt: new Date(),
-      description: insertGroup.description || null,
       whatsappLink,
-      deadline: insertGroup.deadline || null,
-      status: insertGroup.status || "active",
     };
     this.groups.set(id, group);
     return group;
@@ -222,7 +218,7 @@ export class MemStorage implements IStorage {
   }
 
   // Project methods
-  async getGroupProjects(groupId: string): Promise<ProjectWithStats[]> {
+  async getProjectsByGroup(groupId: string): Promise<ProjectWithStats[]> {
     const projects = Array.from(this.projects.values())
       .filter(project => project.groupId === groupId);
     
@@ -247,19 +243,48 @@ export class MemStorage implements IStorage {
     return this.projects.get(id);
   }
 
+  async getProjectByCustomSlug(customSlug: string): Promise<Project | undefined> {
+    return Array.from(this.projects.values()).find(project => project.customSlug === customSlug);
+  }
+
   async createProject(insertProject: InsertProject): Promise<Project> {
     const id = randomUUID();
+    
+    // Get the group to create project URL slug
+    const group = this.groups.get(insertProject.groupId);
+    const groupSlug = group?.customSlug || "group";
+    
+    // Generate clean URL slug from project name
+    const projectSlug = insertProject.name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
+      .replace(/\s+/g, '') // Remove all spaces
+      .slice(0, 50); // Limit length
+    
+    const customSlug = `${groupSlug}/${projectSlug}`;
+
     const project: Project = {
       ...insertProject,
       id,
       collectedAmount: "0",
+      customSlug,
       createdAt: new Date(),
+      description: insertProject.description || null,
       deadline: insertProject.deadline || null,
       status: insertProject.status || "active",
     };
 
     this.projects.set(id, project);
     return project;
+  }
+
+  async updateProject(id: string, updates: Partial<Project>): Promise<Project | undefined> {
+    const project = this.projects.get(id);
+    if (!project) return undefined;
+    
+    const updatedProject = { ...project, ...updates };
+    this.projects.set(id, updatedProject);
+    return updatedProject;
   }
 
   async updateProject(id: string, updates: Partial<Project>): Promise<Project | undefined> {
@@ -379,6 +404,7 @@ export class MemStorage implements IStorage {
       description: insertContribution.description || null,
       transactionRef: insertContribution.transactionRef || null,
       proofOfPayment: insertContribution.proofOfPayment || null,
+      projectId: insertContribution.projectId || null,
     };
     this.contributions.set(id, contribution);
 
@@ -393,11 +419,13 @@ export class MemStorage implements IStorage {
     // Update status to confirmed
     contribution.status = "confirmed";
     
-    // Update group collected amount
-    const group = this.groups.get(contribution.groupId);
-    if (group) {
-      const newCollectedAmount = (Number(group.collectedAmount) + Number(contribution.amount)).toString();
-      await this.updateGroup(group.id, { collectedAmount: newCollectedAmount });
+    // Update project collected amount if contribution is for a specific project
+    if (contribution.projectId) {
+      const project = this.projects.get(contribution.projectId);
+      if (project) {
+        const newCollectedAmount = (Number(project.collectedAmount) + Number(contribution.amount)).toString();
+        await this.updateProject(project.id, { collectedAmount: newCollectedAmount });
+      }
     }
 
     // Update member contributed amount

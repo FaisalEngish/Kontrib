@@ -16,12 +16,9 @@ export const groups = pgTable("groups", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   description: text("description"),
-  targetAmount: decimal("target_amount", { precision: 15, scale: 2 }).notNull(),
-  collectedAmount: decimal("collected_amount", { precision: 15, scale: 2 }).notNull().default("0"),
   whatsappLink: text("whatsapp_link"),
   registrationLink: text("registration_link").notNull().unique(),
   customSlug: text("custom_slug").unique(), // For kontrib.app/customslug URLs
-  deadline: timestamp("deadline"),
   status: text("status").notNull().default("active"), // "active", "completed", "paused"
   adminId: varchar("admin_id").notNull().references(() => users.id),
   createdAt: timestamp("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
@@ -43,6 +40,7 @@ export const projects = pgTable("projects", {
   description: text("description"),
   targetAmount: decimal("target_amount", { precision: 15, scale: 2 }).notNull(),
   collectedAmount: decimal("collected_amount", { precision: 15, scale: 2 }).notNull().default("0"),
+  customSlug: text("custom_slug").unique(), // For kontrib.app/groupname/projectname URLs
   deadline: timestamp("deadline"),
   status: text("status").notNull().default("active"), // "active", "completed", "paused"
   createdAt: timestamp("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
@@ -75,7 +73,6 @@ export const insertUserSchema = createInsertSchema(users).omit({
 
 export const insertGroupSchema = createInsertSchema(groups).omit({
   id: true,
-  collectedAmount: true,
   registrationLink: true,
   customSlug: true,
   adminId: true,
@@ -92,6 +89,7 @@ export const insertGroupMemberSchema = createInsertSchema(groupMembers).omit({
 export const insertProjectSchema = createInsertSchema(projects).omit({
   id: true,
   collectedAmount: true,
+  customSlug: true,
   createdAt: true,
 });
 

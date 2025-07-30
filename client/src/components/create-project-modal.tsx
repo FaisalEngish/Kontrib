@@ -1,18 +1,23 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { insertProjectSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
-import { formatNaira } from "@/lib/currency";
+import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
+
+const createProjectFormSchema = insertProjectSchema.extend({
+  targetAmount: z.string().min(1, "Target amount is required"),
+  deadline: z.string().optional(),
+});
+
+type CreateProjectFormData = z.infer<typeof createProjectFormSchema>;
 
 interface CreateProjectModalProps {
   open: boolean;
@@ -22,140 +27,154 @@ interface CreateProjectModalProps {
 }
 
 export function CreateProjectModal({ open, onOpenChange, groupId, groupName }: CreateProjectModalProps) {
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    targetAmount: "",
-    deadline: "",
-  });
-
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const form = useForm<CreateProjectFormData>({
+    resolver: zodResolver(createProjectFormSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      targetAmount: "",
+      deadline: undefined,
+      groupId,
+    },
+  });
+
   const createProjectMutation = useMutation({
-    mutationFn: async (projectData: any) => {
-      const response = await apiRequest(`/api/groups/${groupId}/projects`, "POST", projectData);
-      return response;
-    },
-    onSuccess: () => {
-      toast({
-        title: "Project Created",
-        description: "Your project has been created successfully!",
+    mutationFn: async (data: CreateProjectFormData) => {
+      const response = await apiRequest("POST", `/api/groups/${groupId}/projects`, {
+        ...data,
+        deadline: data.deadline ? new Date(data.deadline).toISOString() : undefined,
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/groups", groupId, "projects"] });
-      onOpenChange(false);
-      setFormData({ name: "", description: "", targetAmount: "", deadline: "" });
+      return response.json();
     },
-    onError: (error: any) => {
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/groups", groupId, "projects"] });
+      toast({
+        title: "Project Created!",
+        description: `Project "${data.name}" has been created with custom URL: kontrib.app/${data.customSlug}`,
+      });
+      form.reset();
+      onOpenChange(false);
+    },
+    onError: (error) => {
       toast({
         title: "Error",
-        description: error.message || "Failed to create project",
+        description: "Failed to create project. Please try again.",
         variant: "destructive",
       });
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.name || !formData.targetAmount) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    createProjectMutation.mutate({
-      ...formData,
-      targetAmount: formData.targetAmount,
-      deadline: formData.deadline || null,
-    });
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const onSubmit = (data: CreateProjectFormData) => {
+    createProjectMutation.mutate(data);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New Project</DialogTitle>
-          <p className="text-sm text-gray-600">Add a project to {groupName}</p>
+          <DialogTitle>Create New Project for {groupName}</DialogTitle>
         </DialogHeader>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="project-name">Project Name *</Label>
-              <Input
-                id="project-name"
-                value={formData.name}
-                onChange={(e) => handleInputChange("name", e.target.value)}
-                placeholder="e.g., Wedding Decorations"
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="project-description">Description (Optional)</Label>
-              <Textarea
-                id="project-description"
-                value={formData.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
-                placeholder="Describe what this project is for..."
-                rows={3}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="project-target">Target Amount *</Label>
-              <Input
-                id="project-target"
-                type="number"
-                value={formData.targetAmount}
-                onChange={(e) => handleInputChange("targetAmount", e.target.value)}
-                placeholder="50000"
-                required
-              />
-              {formData.targetAmount && (
-                <p className="text-sm text-gray-600 mt-1">
-                  Target: {formatNaira(formData.targetAmount)}
-                </p>
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter project name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
+            />
+
+            <FormField
+              control={form.control}
+              name="targetAmount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Target Amount (₦)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="1000000" 
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="deadline"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Collection Deadline (Optional)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="date" 
+                      {...field} 
+                      value={field.value ? new Date(field.value).toISOString().split('T')[0] : ""}
+                      onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description (Optional)</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Enter project description..." 
+                      rows={3}
+                      {...field}
+                      value={field.value || ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="bg-green-50 p-3 rounded-lg">
+              <p className="text-sm text-green-700">
+                🔗 <strong>Custom URL:</strong> This project will get its own shareable link in format: kontrib.app/groupname/projectname
+              </p>
             </div>
 
-            <div>
-              <Label htmlFor="project-deadline">Deadline (Optional)</Label>
-              <Input
-                id="project-deadline"
-                type="date"
-                value={formData.deadline}
-                onChange={(e) => handleInputChange("deadline", e.target.value)}
-              />
+            <div className="flex space-x-3 pt-4">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => onOpenChange(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={createProjectMutation.isPending}
+                className="flex-1 bg-nigerian-green hover:bg-forest-green"
+              >
+                {createProjectMutation.isPending ? "Creating..." : "Create Project"}
+              </Button>
             </div>
-          </div>
-
-          <div className="flex justify-end space-x-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={createProjectMutation.isPending}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={createProjectMutation.isPending}
-              className="bg-nigerian-green hover:bg-forest-green"
-            >
-              {createProjectMutation.isPending ? "Creating..." : "Create Project"}
-            </Button>
-          </div>
-        </form>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

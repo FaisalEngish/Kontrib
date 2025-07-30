@@ -161,11 +161,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/groups/:groupId/projects", async (req, res) => {
     try {
       const { groupId } = req.params;
-      const projects = await storage.getGroupProjects(groupId);
+      const projects = await storage.getProjectsByGroup(groupId);
       res.json(projects);
     } catch (error) {
       console.error("Get group projects error:", error);
       res.status(500).json({ message: "Failed to fetch projects" });
+    }
+  });
+
+  app.get("/api/projects/slug/:groupSlug/:projectSlug", async (req, res) => {
+    try {
+      const { groupSlug, projectSlug } = req.params;
+      const customSlug = `${groupSlug}/${projectSlug}`;
+      const project = await storage.getProjectByCustomSlug(customSlug);
+      
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+      
+      res.json(project);
+    } catch (error) {
+      console.error("Get project by slug error:", error);
+      res.status(500).json({ message: "Failed to fetch project" });
     }
   });
 
