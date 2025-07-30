@@ -3,8 +3,9 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { initializeAuth, getCurrentUser, isAdmin } from "./lib/auth";
+import type { User } from "@shared/schema";
 
 // Pages
 import Landing from "@/pages/landing";
@@ -14,7 +15,31 @@ import GroupRegistration from "@/pages/group-registration";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  const user = getCurrentUser();
+  const [user, setUser] = useState<User | null>(getCurrentUser());
+
+  // Listen for auth state changes
+  useEffect(() => {
+    const handleAuthStateChange = (event: CustomEvent) => {
+      setUser(event.detail);
+    };
+
+    const checkAuth = () => {
+      const currentUser = getCurrentUser();
+      setUser(currentUser);
+    };
+
+    // Check auth on mount
+    checkAuth();
+    
+    // Listen for custom auth state changes
+    window.addEventListener('authStateChanged', handleAuthStateChange as EventListener);
+    window.addEventListener('storage', checkAuth);
+    
+    return () => {
+      window.removeEventListener('authStateChanged', handleAuthStateChange as EventListener);
+      window.removeEventListener('storage', checkAuth);
+    };
+  }, []);
 
   return (
     <Switch>

@@ -13,6 +13,9 @@ export function setCurrentUser(user: User | null): void {
   } else {
     localStorage.removeItem('currentUser');
   }
+  
+  // Trigger a custom event to notify components of auth state change
+  window.dispatchEvent(new CustomEvent('authStateChanged', { detail: user }));
 }
 
 export function initializeAuth(): User | null {
