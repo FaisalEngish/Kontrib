@@ -57,6 +57,7 @@ export const insertGroupSchema = createInsertSchema(groups).omit({
   id: true,
   collectedAmount: true,
   registrationLink: true,
+  customSlug: true,
   adminId: true,
   createdAt: true,
 });

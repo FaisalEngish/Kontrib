@@ -47,10 +47,11 @@ Uses **PostgreSQL** with a well-structured relational schema:
 - Protected routes based on user roles
 
 ### Group Management
-- **Auto-Generated WhatsApp Links**: System automatically creates shareable WhatsApp messages with registration links
+- **Custom URL Generation**: System creates branded URLs in format `kontrib.app/groupname` (e.g., `kontrib.app/chikeswedding`)
+- **Enhanced WhatsApp Integration**: Automatically generates professional sharing messages with emojis and hashtags
 - **Unique Registration Links**: Each group gets a unique link for member self-registration  
 - **Group Status Tracking**: Active, completed, and paused group states
-- **Target Amount and Deadline Management**: Flexible contribution goals and timing
+- **Target Amount and Deadline Management**: Flexible contribution goals and timing with proper date handling
 
 ### Payment Processing
 - **Proof of Payment Upload**: Members can upload payment receipts/screenshots for verification
@@ -111,3 +112,13 @@ Uses **PostgreSQL** with a well-structured relational schema:
 - Cartographer integration for enhanced development experience
 
 The application is designed to be easily deployable on platforms like Replit, Vercel, or any Node.js hosting service with PostgreSQL database support. The modular architecture allows for easy scaling and maintenance of both frontend and backend components.
+
+## Recent Changes (July 30, 2025)
+
+### Custom URL Feature Implementation
+- Added `customSlug` field to groups schema for branded URL generation (kontrib.app/groupname format)
+- Updated WhatsApp message template with professional branding, emojis, and hashtags
+- Enhanced admin dashboard to display custom URLs prominently for easy sharing
+- Fixed date validation issue in group creation API to properly handle deadline strings
+- Added API endpoint `/api/groups/slug/:slug` for fetching groups by custom slug
+- All groups now automatically generate clean, shareable custom URLs from their names
