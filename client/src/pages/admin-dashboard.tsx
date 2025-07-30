@@ -6,6 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Navigation } from "@/components/navigation";
 import { GroupCard } from "@/components/group-card";
 import { CreateGroupModal } from "@/components/create-group-modal";
+import { CreateProjectModal } from "@/components/create-project-modal";
+import { ManageAccountabilityPartnersModal } from "@/components/manage-accountability-partners-modal";
+import { ProjectCard } from "@/components/project-card";
 import { 
   Plus, 
   DollarSign, 
@@ -16,7 +19,9 @@ import {
   FileText,
   MessageCircle,
   ArrowDown,
-  Settings
+  Settings,
+  FolderPlus,
+  UserCheck
 } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 import { formatNaira } from "@/lib/currency";
@@ -27,6 +32,9 @@ export default function AdminDashboard() {
   const user = getCurrentUser();
   const { toast } = useToast();
   const [createGroupModalOpen, setCreateGroupModalOpen] = useState(false);
+  const [createProjectModalOpen, setCreateProjectModalOpen] = useState(false);
+  const [managePartnersModalOpen, setManagePartnersModalOpen] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
 
   const { data: groups = [], isLoading: groupsLoading } = useQuery({
     queryKey: ["/api/groups", "admin", user?.id],
@@ -72,6 +80,16 @@ export default function AdminDashboard() {
       title: "Feature Coming Soon",
       description: "Group management features will be available soon.",
     });
+  };
+
+  const handleCreateProject = (group: Group) => {
+    setSelectedGroup(group);
+    setCreateProjectModalOpen(true);
+  };
+
+  const handleManagePartners = (group: Group) => {
+    setSelectedGroup(group);
+    setManagePartnersModalOpen(true);
   };
 
   if (groupsLoading || statsLoading) {
@@ -216,13 +234,36 @@ export default function AdminDashboard() {
                 ) : (
                   <div className="space-y-4">
                     {groups.map((group) => (
-                      <GroupCard
-                        key={group.id}
-                        group={group}
-                        isAdmin={true}
-                        onManage={handleManageGroup}
-                        onShare={handleShareGroup}
-                      />
+                      <div key={group.id} className="space-y-3">
+                        <GroupCard
+                          group={group}
+                          isAdmin={true}
+                          onManage={handleManageGroup}
+                          onShare={handleShareGroup}
+                        />
+                        
+                        {/* Quick Actions for Group */}
+                        <div className="flex space-x-2">
+                          <Button
+                            onClick={() => handleCreateProject(group)}
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                          >
+                            <FolderPlus className="h-4 w-4 mr-1" />
+                            Add Project
+                          </Button>
+                          <Button
+                            onClick={() => handleManagePartners(group)}
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                          >
+                            <UserCheck className="h-4 w-4 mr-1" />
+                            Partners
+                          </Button>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -343,6 +384,25 @@ export default function AdminDashboard() {
         open={createGroupModalOpen}
         onOpenChange={setCreateGroupModalOpen}
       />
+
+      {/* Project and Accountability Partner Modals */}
+      {selectedGroup && (
+        <>
+          <CreateProjectModal
+            open={createProjectModalOpen}
+            onOpenChange={setCreateProjectModalOpen}
+            groupId={selectedGroup.id}
+            groupName={selectedGroup.name}
+          />
+          
+          <ManageAccountabilityPartnersModal
+            open={managePartnersModalOpen}
+            onOpenChange={setManagePartnersModalOpen}
+            groupId={selectedGroup.id}
+            groupName={selectedGroup.name}
+          />
+        </>
+      )}
     </div>
   );
 }

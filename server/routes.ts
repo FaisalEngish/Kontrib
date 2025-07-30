@@ -1,7 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, insertGroupSchema, insertContributionSchema } from "@shared/schema";
+import { 
+  insertUserSchema, insertGroupSchema, insertGroupMemberSchema,
+  insertProjectSchema, insertAccountabilityPartnerSchema, insertContributionSchema 
+} from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -151,6 +154,126 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get group members error:", error);
       res.status(500).json({ message: "Failed to fetch group members" });
+    }
+  });
+
+  // Project routes
+  app.get("/api/groups/:groupId/projects", async (req, res) => {
+    try {
+      const { groupId } = req.params;
+      const projects = await storage.getGroupProjects(groupId);
+      res.json(projects);
+    } catch (error) {
+      console.error("Get group projects error:", error);
+      res.status(500).json({ message: "Failed to fetch projects" });
+    }
+  });
+
+  app.post("/api/groups/:groupId/projects", async (req, res) => {
+    try {
+      const { groupId } = req.params;
+      const projectData = { ...req.body, groupId };
+      
+      // Handle deadline conversion
+      if (projectData.deadline) {
+        projectData.deadline = new Date(projectData.deadline);
+      }
+      
+      const project = await storage.createProject(projectData);
+      res.json(project);
+    } catch (error) {
+      console.error("Create project error:", error);
+      res.status(400).json({ message: "Invalid project data" });
+    }
+  });
+
+  app.get("/api/projects/:projectId", async (req, res) => {
+    try {
+      const { projectId } = req.params;
+      const project = await storage.getProject(projectId);
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+      res.json(project);
+    } catch (error) {
+      console.error("Get project error:", error);
+      res.status(500).json({ message: "Failed to fetch project" });
+    }
+  });
+
+  app.patch("/api/projects/:projectId", async (req, res) => {
+    try {
+      const { projectId } = req.params;
+      const updates = { ...req.body };
+      
+      // Handle deadline conversion
+      if (updates.deadline) {
+        updates.deadline = new Date(updates.deadline);
+      }
+      
+      const project = await storage.updateProject(projectId, updates);
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+      res.json(project);
+    } catch (error) {
+      console.error("Update project error:", error);
+      res.status(400).json({ message: "Failed to update project" });
+    }
+  });
+
+  // Accountability Partner routes
+  app.get("/api/groups/:groupId/accountability-partners", async (req, res) => {
+    try {
+      const { groupId } = req.params;
+      const partners = await storage.getGroupAccountabilityPartners(groupId);
+      res.json(partners);
+    } catch (error) {
+      console.error("Get accountability partners error:", error);
+      res.status(500).json({ message: "Failed to fetch accountability partners" });
+    }
+  });
+
+  app.post("/api/groups/:groupId/accountability-partners", async (req, res) => {
+    try {
+      const { groupId } = req.params;
+      const { userId } = req.body;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      // Check if user is already an accountability partner
+      const existingPartners = await storage.getGroupAccountabilityPartners(groupId);
+      if (existingPartners.length >= 2) {
+        return res.status(400).json({ message: "Maximum 2 accountability partners allowed per group" });
+      }
+      
+      if (existingPartners.some(p => p.userId === userId)) {
+        return res.status(400).json({ message: "User is already an accountability partner" });
+      }
+      
+      const partner = await storage.addAccountabilityPartner({ groupId, userId });
+      res.json(partner);
+    } catch (error) {
+      console.error("Add accountability partner error:", error);
+      res.status(500).json({ message: "Failed to add accountability partner" });
+    }
+  });
+
+  app.delete("/api/groups/:groupId/accountability-partners/:userId", async (req, res) => {
+    try {
+      const { groupId, userId } = req.params;
+      const success = await storage.removeAccountabilityPartner(groupId, userId);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Accountability partner not found" });
+      }
+      
+      res.json({ message: "Accountability partner removed successfully" });
+    } catch (error) {
+      console.error("Remove accountability partner error:", error);
+      res.status(500).json({ message: "Failed to remove accountability partner" });
     }
   });
 

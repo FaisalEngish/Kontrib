@@ -36,9 +36,29 @@ export const groupMembers = pgTable("group_members", {
   joinedAt: timestamp("joined_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
+export const projects = pgTable("projects", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  groupId: varchar("group_id").notNull().references(() => groups.id),
+  name: text("name").notNull(),
+  description: text("description"),
+  targetAmount: decimal("target_amount", { precision: 15, scale: 2 }).notNull(),
+  collectedAmount: decimal("collected_amount", { precision: 15, scale: 2 }).notNull().default("0"),
+  deadline: timestamp("deadline"),
+  status: text("status").notNull().default("active"), // "active", "completed", "paused"
+  createdAt: timestamp("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const accountabilityPartners = pgTable("accountability_partners", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  groupId: varchar("group_id").notNull().references(() => groups.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  assignedAt: timestamp("assigned_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
 export const contributions = pgTable("contributions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   groupId: varchar("group_id").notNull().references(() => groups.id),
+  projectId: varchar("project_id").references(() => projects.id), // Optional: contribution can be for specific project
   userId: varchar("user_id").notNull().references(() => users.id),
   amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
   description: text("description"),
@@ -69,6 +89,17 @@ export const insertGroupMemberSchema = createInsertSchema(groupMembers).omit({
   joinedAt: true,
 });
 
+export const insertProjectSchema = createInsertSchema(projects).omit({
+  id: true,
+  collectedAmount: true,
+  createdAt: true,
+});
+
+export const insertAccountabilityPartnerSchema = createInsertSchema(accountabilityPartners).omit({
+  id: true,
+  assignedAt: true,
+});
+
 export const insertContributionSchema = createInsertSchema(contributions).omit({
   id: true,
   status: true,
@@ -79,11 +110,15 @@ export const insertContributionSchema = createInsertSchema(contributions).omit({
 export type User = typeof users.$inferSelect;
 export type Group = typeof groups.$inferSelect;
 export type GroupMember = typeof groupMembers.$inferSelect;
+export type Project = typeof projects.$inferSelect;
+export type AccountabilityPartner = typeof accountabilityPartners.$inferSelect;
 export type Contribution = typeof contributions.$inferSelect;
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertGroup = z.infer<typeof insertGroupSchema>;
 export type InsertGroupMember = z.infer<typeof insertGroupMemberSchema>;
+export type InsertProject = z.infer<typeof insertProjectSchema>;
+export type InsertAccountabilityPartner = z.infer<typeof insertAccountabilityPartnerSchema>;
 export type InsertContribution = z.infer<typeof insertContributionSchema>;
 
 // Extended types for UI
@@ -99,7 +134,18 @@ export type MemberWithContributions = User & {
   status: string;
 };
 
+export type ProjectWithStats = Project & {
+  contributionCount: number;
+  completionRate: number;
+};
+
 export type ContributionWithDetails = Contribution & {
   userName: string;
   groupName: string;
+  projectName?: string;
+};
+
+export type AccountabilityPartnerWithDetails = AccountabilityPartner & {
+  userName: string;
+  userFullName: string;
 };

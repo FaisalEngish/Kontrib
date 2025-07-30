@@ -2,14 +2,20 @@ import {
   type User, 
   type Group, 
   type GroupMember, 
+  type Project,
+  type AccountabilityPartner,
   type Contribution,
   type InsertUser, 
   type InsertGroup, 
   type InsertGroupMember, 
+  type InsertProject,
+  type InsertAccountabilityPartner,
   type InsertContribution,
   type GroupWithStats,
   type MemberWithContributions,
-  type ContributionWithDetails
+  type ContributionWithDetails,
+  type ProjectWithStats,
+  type AccountabilityPartnerWithDetails
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -33,8 +39,20 @@ export interface IStorage {
   addGroupMember(member: InsertGroupMember): Promise<GroupMember>;
   getGroupMember(groupId: string, userId: string): Promise<GroupMember | undefined>;
   
+  // Project methods
+  getGroupProjects(groupId: string): Promise<ProjectWithStats[]>;
+  getProject(id: string): Promise<Project | undefined>;
+  createProject(project: InsertProject): Promise<Project>;
+  updateProject(id: string, updates: Partial<Project>): Promise<Project | undefined>;
+  
+  // Accountability Partner methods
+  getGroupAccountabilityPartners(groupId: string): Promise<AccountabilityPartnerWithDetails[]>;
+  addAccountabilityPartner(partner: InsertAccountabilityPartner): Promise<AccountabilityPartner>;
+  removeAccountabilityPartner(groupId: string, userId: string): Promise<boolean>;
+
   // Contribution methods
   getGroupContributions(groupId: string): Promise<ContributionWithDetails[]>;
+  getProjectContributions(projectId: string): Promise<ContributionWithDetails[]>;
   getUserContributions(userId: string): Promise<ContributionWithDetails[]>;
   createContribution(contribution: InsertContribution): Promise<Contribution>;
   confirmContribution(contributionId: string): Promise<Contribution | undefined>;
@@ -54,12 +72,16 @@ export class MemStorage implements IStorage {
   private users: Map<string, User>;
   private groups: Map<string, Group>;
   private groupMembers: Map<string, GroupMember>;
+  private projects: Map<string, Project>;
+  private accountabilityPartners: Map<string, AccountabilityPartner>;
   private contributions: Map<string, Contribution>;
 
   constructor() {
     this.users = new Map();
     this.groups = new Map();
     this.groupMembers = new Map();
+    this.projects = new Map();
+    this.accountabilityPartners = new Map();
     this.contributions = new Map();
   }
 
@@ -199,6 +221,102 @@ export class MemStorage implements IStorage {
       .find(member => member.groupId === groupId && member.userId === userId);
   }
 
+  // Project methods
+  async getGroupProjects(groupId: string): Promise<ProjectWithStats[]> {
+    const projects = Array.from(this.projects.values())
+      .filter(project => project.groupId === groupId);
+    
+    return projects.map(project => {
+      const contributions = Array.from(this.contributions.values())
+        .filter(c => c.projectId === project.id);
+      
+      const contributionCount = contributions.length;
+      const completionRate = Number(project.targetAmount) > 0 
+        ? Math.round((Number(project.collectedAmount) / Number(project.targetAmount)) * 100)
+        : 0;
+      
+      return {
+        ...project,
+        contributionCount,
+        completionRate,
+      };
+    });
+  }
+
+  async getProject(id: string): Promise<Project | undefined> {
+    return this.projects.get(id);
+  }
+
+  async createProject(insertProject: InsertProject): Promise<Project> {
+    const id = randomUUID();
+    const project: Project = {
+      ...insertProject,
+      id,
+      collectedAmount: "0",
+      createdAt: new Date(),
+      deadline: insertProject.deadline || null,
+      status: insertProject.status || "active",
+    };
+
+    this.projects.set(id, project);
+    return project;
+  }
+
+  async updateProject(id: string, updates: Partial<Project>): Promise<Project | undefined> {
+    const project = this.projects.get(id);
+    if (!project) return undefined;
+
+    const updatedProject = { ...project, ...updates };
+    this.projects.set(id, updatedProject);
+    return updatedProject;
+  }
+
+  // Accountability Partner methods
+  async getGroupAccountabilityPartners(groupId: string): Promise<AccountabilityPartnerWithDetails[]> {
+    const partners = Array.from(this.accountabilityPartners.values())
+      .filter(partner => partner.groupId === groupId);
+    
+    return partners.map(partner => {
+      const user = this.users.get(partner.userId);
+      if (!user) {
+        console.error(`User not found for accountability partner: ${partner.userId}`);
+        return {
+          ...partner,
+          userName: "Unknown User",
+          userFullName: "Unknown User",
+        };
+      }
+      return {
+        ...partner,
+        userName: user.username,
+        userFullName: user.fullName,
+      };
+    });
+  }
+
+  async addAccountabilityPartner(insertPartner: InsertAccountabilityPartner): Promise<AccountabilityPartner> {
+    const id = randomUUID();
+    const partner: AccountabilityPartner = {
+      ...insertPartner,
+      id,
+      assignedAt: new Date(),
+    };
+
+    this.accountabilityPartners.set(id, partner);
+    return partner;
+  }
+
+  async removeAccountabilityPartner(groupId: string, userId: string): Promise<boolean> {
+    const partner = Array.from(this.accountabilityPartners.values())
+      .find(p => p.groupId === groupId && p.userId === userId);
+    
+    if (partner) {
+      this.accountabilityPartners.delete(partner.id);
+      return true;
+    }
+    return false;
+  }
+
   async getGroupContributions(groupId: string): Promise<ContributionWithDetails[]> {
     const contributions = Array.from(this.contributions.values())
       .filter(contrib => contrib.groupId === groupId)
@@ -215,6 +333,24 @@ export class MemStorage implements IStorage {
     });
   }
 
+  async getProjectContributions(projectId: string): Promise<ContributionWithDetails[]> {
+    const contributions = Array.from(this.contributions.values())
+      .filter(contrib => contrib.projectId === projectId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+    return contributions.map(contrib => {
+      const user = this.users.get(contrib.userId)!;
+      const group = this.groups.get(contrib.groupId)!;
+      const project = this.projects.get(contrib.projectId!)!;
+      return {
+        ...contrib,
+        userName: user.fullName,
+        groupName: group.name,
+        projectName: project.name
+      };
+    });
+  }
+
   async getUserContributions(userId: string): Promise<ContributionWithDetails[]> {
     const contributions = Array.from(this.contributions.values())
       .filter(contrib => contrib.userId === userId)
@@ -223,10 +359,12 @@ export class MemStorage implements IStorage {
     return contributions.map(contrib => {
       const user = this.users.get(contrib.userId)!;
       const group = this.groups.get(contrib.groupId)!;
+      const project = contrib.projectId ? this.projects.get(contrib.projectId) : null;
       return {
         ...contrib,
         userName: user.fullName,
-        groupName: group.name
+        groupName: group.name,
+        projectName: project?.name
       };
     });
   }
