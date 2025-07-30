@@ -90,6 +90,15 @@ export function GroupCard({
           </div>
         )}
 
+        {isAdmin && group.customSlug && (
+          <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+            <p className="text-xs font-medium text-blue-700 mb-1">Custom URL for sharing:</p>
+            <p className="text-sm font-mono text-blue-600 bg-white px-2 py-1 rounded">
+              kontrib.app/{group.customSlug}
+            </p>
+          </div>
+        )}
+
         <div className="flex space-x-2">
           {isAdmin ? (
             <>

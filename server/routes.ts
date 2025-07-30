@@ -80,6 +80,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/groups/slug/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const group = await storage.getGroupByCustomSlug(slug);
+      
+      if (!group) {
+        return res.status(404).json({ message: "Group not found" });
+      }
+      
+      res.json(group);
+    } catch (error) {
+      console.error("Get group by custom slug error:", error);
+      res.status(500).json({ message: "Failed to fetch group" });
+    }
+  });
+
   app.post("/api/groups", async (req, res) => {
     try {
       const groupData = insertGroupSchema.parse(req.body);

@@ -20,6 +20,7 @@ export const groups = pgTable("groups", {
   collectedAmount: decimal("collected_amount", { precision: 15, scale: 2 }).notNull().default("0"),
   whatsappLink: text("whatsapp_link"),
   registrationLink: text("registration_link").notNull().unique(),
+  customSlug: text("custom_slug").unique(), // For kontrib.app/customslug URLs
   deadline: timestamp("deadline"),
   status: text("status").notNull().default("active"), // "active", "completed", "paused"
   adminId: varchar("admin_id").notNull().references(() => users.id),

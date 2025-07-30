@@ -22,6 +22,7 @@ export interface IStorage {
   // Group methods
   getGroup(id: string): Promise<Group | undefined>;
   getGroupByRegistrationLink(link: string): Promise<Group | undefined>;
+  getGroupByCustomSlug(slug: string): Promise<Group | undefined>;
   getGroupsByAdmin(adminId: string): Promise<GroupWithStats[]>;
   createGroup(group: InsertGroup, adminId: string): Promise<Group>;
   updateGroup(id: string, updates: Partial<Group>): Promise<Group | undefined>;
@@ -89,6 +90,10 @@ export class MemStorage implements IStorage {
     return Array.from(this.groups.values()).find(group => group.registrationLink === link);
   }
 
+  async getGroupByCustomSlug(slug: string): Promise<Group | undefined> {
+    return Array.from(this.groups.values()).find(group => group.customSlug === slug);
+  }
+
   async getGroupsByAdmin(adminId: string): Promise<GroupWithStats[]> {
     const adminGroups = Array.from(this.groups.values()).filter(group => group.adminId === adminId);
     
@@ -119,12 +124,18 @@ export class MemStorage implements IStorage {
     const id = randomUUID();
     const registrationLink = randomUUID();
     
+    // Create custom URL slug from group name
+    const groupSlug = insertGroup.name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '') // Remove special characters
+      .replace(/\s+/g, '') // Remove spaces
+      .substring(0, 20); // Limit length
+
     // Auto-generate WhatsApp sharing link if not provided
     let whatsappLink = insertGroup.whatsappLink;
     if (!whatsappLink) {
-      const baseUrl = process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000';
-      const joinUrl = `${baseUrl}/register/${registrationLink}`;
-      const message = `Join our group "${insertGroup.name}" for financial contributions! Click here to register: ${joinUrl}`;
+      const customUrl = `kontrib.app/${groupSlug}`;
+      const message = `🎉 Join "${insertGroup.name}" on Kontrib!\n\nManage group contributions with transparency and ease.\n\n👉 Register here: ${customUrl}\n\n#Kontrib #GroupContributions`;
       whatsappLink = `https://wa.me/?text=${encodeURIComponent(message)}`;
     }
     
@@ -132,6 +143,7 @@ export class MemStorage implements IStorage {
       ...insertGroup,
       id,
       registrationLink,
+      customSlug: groupSlug,
       adminId,
       collectedAmount: "0",
       createdAt: new Date(),
