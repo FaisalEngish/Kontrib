@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { insertContributionSchema, Group } from "@shared/schema";
+import { insertContributionSchema, Project } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { getCurrentUser } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
@@ -24,10 +24,10 @@ type PaymentFormData = z.infer<typeof paymentFormSchema>;
 interface PaymentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  group: Group | null;
+  project: Project | null;
 }
 
-export function PaymentModal({ open, onOpenChange, group }: PaymentModalProps) {
+export function PaymentModal({ open, onOpenChange, project }: PaymentModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const user = getCurrentUser();
@@ -75,11 +75,11 @@ export function PaymentModal({ open, onOpenChange, group }: PaymentModalProps) {
 
   const createPaymentMutation = useMutation({
     mutationFn: async (data: PaymentFormData) => {
-      if (!group || !user) throw new Error("Missing group or user");
+      if (!project || !user) throw new Error("Missing project or user");
       
       const response = await apiRequest("POST", "/api/contributions", {
         ...data,
-        groupId: group.id,
+        projectId: project.id,
         userId: user.id,
       });
       return response.json();
@@ -109,7 +109,7 @@ export function PaymentModal({ open, onOpenChange, group }: PaymentModalProps) {
     createPaymentMutation.mutate(data);
   };
 
-  if (!group) return null;
+  if (!project) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -117,7 +117,7 @@ export function PaymentModal({ open, onOpenChange, group }: PaymentModalProps) {
         <DialogHeader>
           <DialogTitle>Make Payment</DialogTitle>
           <p className="text-sm text-gray-600">
-            Contributing to <span className="font-medium">{group.name}</span>
+            Contributing to <span className="font-medium">{project.name}</span>
           </p>
         </DialogHeader>
 
@@ -125,11 +125,11 @@ export function PaymentModal({ open, onOpenChange, group }: PaymentModalProps) {
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <p className="text-gray-600">Target Amount</p>
-              <p className="font-semibold">{formatNaira(group.targetAmount)}</p>
+              <p className="font-semibold">{formatNaira(project.targetAmount)}</p>
             </div>
             <div>
               <p className="text-gray-600">Collected So Far</p>
-              <p className="font-semibold text-green-600">{formatNaira(group.collectedAmount)}</p>
+              <p className="font-semibold text-green-600">{formatNaira(project.collectedAmount)}</p>
             </div>
           </div>
         </div>

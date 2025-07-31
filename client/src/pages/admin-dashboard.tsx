@@ -9,6 +9,7 @@ import { CreateGroupModal } from "@/components/create-group-modal";
 import { CreateProjectModal } from "@/components/create-project-modal";
 import { ManageAccountabilityPartnersModal } from "@/components/manage-accountability-partners-modal";
 import { ProjectCard } from "@/components/project-card";
+import { PaymentModal } from "@/components/payment-modal";
 import { 
   Plus, 
   DollarSign, 
@@ -35,7 +36,9 @@ export default function AdminDashboard() {
   const [createProjectModalOpen, setCreateProjectModalOpen] = useState(false);
   const [managePartnersModalOpen, setManagePartnersModalOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [expandedGroupId, setExpandedGroupId] = useState<string | null>(null);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
 
   const { data: groups = [], isLoading: groupsLoading } = useQuery<Group[]>({
     queryKey: ["/api/groups", "admin", user?.id],
@@ -95,6 +98,11 @@ export default function AdminDashboard() {
 
   const toggleGroupExpansion = (groupId: string) => {
     setExpandedGroupId(expandedGroupId === groupId ? null : groupId);
+  };
+
+  const handleContributeToProject = (project: Project) => {
+    setSelectedProject(project);
+    setPaymentModalOpen(true);
   };
 
   // Hook to fetch projects for a specific group
@@ -175,7 +183,12 @@ export default function AdminDashboard() {
               <div className="space-y-3">
                 <h4 className="font-medium text-gray-900">Active Projects ({projects.length})</h4>
                 {projects.map((project) => (
-                  <ProjectCard key={project.id} project={project} />
+                  <ProjectCard 
+                    key={project.id} 
+                    project={project} 
+                    isAdmin={true}
+                    onContribute={handleContributeToProject}
+                  />
                 ))}
               </div>
             )}
@@ -467,6 +480,12 @@ export default function AdminDashboard() {
           />
         </>
       )}
+
+      <PaymentModal 
+        open={paymentModalOpen}
+        onOpenChange={setPaymentModalOpen}
+        project={selectedProject}
+      />
     </div>
   );
 }

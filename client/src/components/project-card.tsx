@@ -93,7 +93,13 @@ export function ProjectCard({
         )}
 
         <div className="flex space-x-2">
-          {isAdmin ? (
+          <Button
+            onClick={() => onContribute?.(project)}
+            className="flex-1 bg-nigerian-green hover:bg-forest-green"
+          >
+            Contribute
+          </Button>
+          {isAdmin && (
             <Button
               variant="outline"
               size="sm"
@@ -102,13 +108,6 @@ export function ProjectCard({
             >
               <Settings className="h-4 w-4 mr-2" />
               Manage
-            </Button>
-          ) : (
-            <Button
-              onClick={() => onContribute?.(project)}
-              className="flex-1 bg-nigerian-green hover:bg-forest-green"
-            >
-              Contribute
             </Button>
           )}
         </div>
