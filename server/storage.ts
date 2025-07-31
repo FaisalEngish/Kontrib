@@ -5,12 +5,14 @@ import {
   type Project,
   type AccountabilityPartner,
   type Contribution,
+  type Notification,
   type InsertUser, 
   type InsertGroup, 
   type InsertGroupMember, 
   type InsertProject,
   type InsertAccountabilityPartner,
   type InsertContribution,
+  type InsertNotification,
   type GroupWithStats,
   type MemberWithContributions,
   type ContributionWithDetails,
@@ -53,9 +55,16 @@ export interface IStorage {
   // Contribution methods
   getGroupContributions(groupId: string): Promise<ContributionWithDetails[]>;
   getProjectContributions(projectId: string): Promise<ContributionWithDetails[]>;
-  getUserContributions(userId: string): Promise<ContributionWithDetails[]>;
   createContribution(contribution: InsertContribution): Promise<Contribution>;
   confirmContribution(contributionId: string): Promise<Contribution | undefined>;
+  
+  // Notification methods
+  getUserNotifications(userId: string): Promise<Notification[]>;
+  createNotification(notification: InsertNotification): Promise<Notification>;
+  markNotificationRead(notificationId: string): Promise<void>;
+  
+  getUserContributions(userId: string): Promise<ContributionWithDetails[]>;
+  getAdminContributions(adminId: string): Promise<ContributionWithDetails[]>;
   updateContribution(id: string, updates: Partial<Contribution>): Promise<Contribution | undefined>;
   
   // Stats methods
@@ -75,6 +84,7 @@ export class MemStorage implements IStorage {
   private projects: Map<string, Project>;
   private accountabilityPartners: Map<string, AccountabilityPartner>;
   private contributions: Map<string, Contribution>;
+  private notifications: Map<string, Notification>;
 
   constructor() {
     this.users = new Map();
@@ -83,6 +93,7 @@ export class MemStorage implements IStorage {
     this.projects = new Map();
     this.accountabilityPartners = new Map();
     this.contributions = new Map();
+    this.notifications = new Map();
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -394,6 +405,29 @@ export class MemStorage implements IStorage {
     });
   }
 
+  async getAdminContributions(adminId: string): Promise<ContributionWithDetails[]> {
+    // Get all groups managed by this admin
+    const adminGroups = Array.from(this.groups.values()).filter(group => group.adminId === adminId);
+    const groupIds = adminGroups.map(group => group.id);
+    
+    // Get all contributions for these groups
+    const contributions = Array.from(this.contributions.values())
+      .filter(contrib => groupIds.includes(contrib.groupId))
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+    return contributions.map(contrib => {
+      const user = this.users.get(contrib.userId)!;
+      const group = this.groups.get(contrib.groupId)!;
+      const project = contrib.projectId ? this.projects.get(contrib.projectId) : null;
+      return {
+        ...contrib,
+        userName: user.fullName,
+        groupName: group.name,
+        projectName: project?.name
+      };
+    });
+  }
+
   async createContribution(insertContribution: InsertContribution): Promise<Contribution> {
     const id = randomUUID();
     const contribution: Contribution = {
@@ -407,6 +441,9 @@ export class MemStorage implements IStorage {
       projectId: insertContribution.projectId || null,
     };
     this.contributions.set(id, contribution);
+
+    // Send notifications to admin and accountability partners
+    await this.sendPaymentNotifications(contribution);
 
     // Don't update amounts yet - wait for admin confirmation
     return contribution;
@@ -516,6 +553,70 @@ export class MemStorage implements IStorage {
       pendingPayments: totalPendingPayments,
       completionRate
     };
+  }
+
+  // Notification methods
+  async getUserNotifications(userId: string): Promise<Notification[]> {
+    return Array.from(this.notifications.values())
+      .filter(notification => notification.userId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async createNotification(insertNotification: InsertNotification): Promise<Notification> {
+    const id = randomUUID();
+    const notification: Notification = {
+      ...insertNotification,
+      id,
+      read: false,
+      createdAt: new Date(),
+    };
+    this.notifications.set(id, notification);
+    return notification;
+  }
+
+  async markNotificationRead(notificationId: string): Promise<void> {
+    const notification = this.notifications.get(notificationId);
+    if (notification) {
+      notification.read = true;
+      this.notifications.set(notificationId, notification);
+    }
+  }
+
+  // Helper method to send payment notifications
+  private async sendPaymentNotifications(contribution: Contribution): Promise<void> {
+    const user = this.users.get(contribution.userId)!;
+    const group = this.groups.get(contribution.groupId)!;
+    const project = contribution.projectId ? this.projects.get(contribution.projectId) : null;
+    
+    const contributionAmount = new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN'
+    }).format(Number(contribution.amount));
+
+    const entityName = project ? project.name : group.name;
+
+    // Notify group admin
+    await this.createNotification({
+      userId: group.adminId,
+      type: "payment_submitted",
+      title: "New Payment Submitted",
+      message: `${user.fullName} submitted a payment of ${contributionAmount} for ${entityName}. Please review and confirm.`,
+      contributionId: contribution.id,
+      projectId: contribution.projectId,
+    });
+
+    // Notify accountability partners
+    const partners = await this.getGroupAccountabilityPartners(contribution.groupId);
+    for (const partner of partners) {
+      await this.createNotification({
+        userId: partner.userId,
+        type: "payment_submitted",
+        title: "Payment Submitted for Review",
+        message: `${user.fullName} submitted a payment of ${contributionAmount} for ${entityName}. You can review the payment details.`,
+        contributionId: contribution.id,
+        projectId: contribution.projectId,
+      });
+    }
   }
 }
 

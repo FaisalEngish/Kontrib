@@ -317,6 +317,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/contributions/admin/:adminId", async (req, res) => {
+    try {
+      const { adminId } = req.params;
+      const contributions = await storage.getAdminContributions(adminId);
+      res.json(contributions);
+    } catch (error) {
+      console.error("Get admin contributions error:", error);
+      res.status(500).json({ message: "Failed to fetch admin contributions" });
+    }
+  });
+
   app.post("/api/contributions", async (req, res) => {
     try {
       const contributionData = insertContributionSchema.parse(req.body);
@@ -339,6 +350,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Confirm contribution error:", error);
       res.status(500).json({ message: "Failed to confirm contribution" });
+    }
+  });
+
+  // Notification routes
+  app.get("/api/notifications/:userId", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const notifications = await storage.getUserNotifications(userId);
+      res.json(notifications);
+    } catch (error) {
+      console.error("Get notifications error:", error);
+      res.status(500).json({ message: "Failed to fetch notifications" });
+    }
+  });
+
+  app.patch("/api/notifications/:id/read", async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.markNotificationRead(id);
+      res.json({ message: "Notification marked as read" });
+    } catch (error) {
+      console.error("Mark notification read error:", error);
+      res.status(500).json({ message: "Failed to mark notification as read" });
     }
   });
 

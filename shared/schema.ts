@@ -100,9 +100,28 @@ export const insertAccountabilityPartnerSchema = createInsertSchema(accountabili
   assignedAt: true,
 });
 
+// Notifications table
+export const notifications = pgTable("notifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id), // Who should receive the notification
+  type: text("type").notNull(), // "payment_submitted", "payment_confirmed", etc.
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  contributionId: varchar("contribution_id").references(() => contributions.id),
+  projectId: varchar("project_id").references(() => projects.id),
+  read: boolean("read").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
 export const insertContributionSchema = createInsertSchema(contributions).omit({
   id: true,
   status: true,
+  createdAt: true,
+});
+
+export const insertNotificationSchema = createInsertSchema(notifications).omit({
+  id: true,
+  read: true,
   createdAt: true,
 });
 
@@ -120,6 +139,8 @@ export type InsertGroupMember = z.infer<typeof insertGroupMemberSchema>;
 export type InsertProject = z.infer<typeof insertProjectSchema>;
 export type InsertAccountabilityPartner = z.infer<typeof insertAccountabilityPartnerSchema>;
 export type InsertContribution = z.infer<typeof insertContributionSchema>;
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 
 // Extended types for UI
 export type GroupWithStats = Group & {

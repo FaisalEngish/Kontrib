@@ -10,6 +10,7 @@ import { CreateProjectModal } from "@/components/create-project-modal";
 import { ManageAccountabilityPartnersModal } from "@/components/manage-accountability-partners-modal";
 import { ProjectCard } from "@/components/project-card";
 import { PaymentModal } from "@/components/payment-modal";
+import { NotificationsPanel } from "@/components/notifications-panel";
 import { 
   Plus, 
   DollarSign, 
@@ -430,6 +431,9 @@ export default function AdminDashboard() {
                 </Button>
               </CardContent>
             </Card>
+
+            {/* Notifications Panel */}
+            <NotificationsPanel currentUser={user} />
 
             {/* Pending Actions */}
             {adminStats && (adminStats.pendingPayments > 0) && (
