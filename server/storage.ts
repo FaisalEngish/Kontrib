@@ -179,6 +179,7 @@ export class MemStorage implements IStorage {
       description: insertGroup.description || null,
       registrationLink,
       customSlug: groupSlug,
+      status: "active",
       adminId,
       createdAt: new Date(),
       whatsappLink,
@@ -283,7 +284,9 @@ export class MemStorage implements IStorage {
       customSlug,
       createdAt: new Date(),
       description: insertProject.description || null,
-      deadline: insertProject.deadline || null,
+      deadline: insertProject.deadline ? 
+        (typeof insertProject.deadline === 'string' ? new Date(insertProject.deadline) : insertProject.deadline) 
+        : null,
       status: insertProject.status || "active",
     };
 
@@ -295,15 +298,11 @@ export class MemStorage implements IStorage {
     const project = this.projects.get(id);
     if (!project) return undefined;
     
-    const updatedProject = { ...project, ...updates };
-    this.projects.set(id, updatedProject);
-    return updatedProject;
-  }
-
-  async updateProject(id: string, updates: Partial<Project>): Promise<Project | undefined> {
-    const project = this.projects.get(id);
-    if (!project) return undefined;
-
+    // Handle deadline conversion if it's a string
+    if (updates.deadline && typeof updates.deadline === 'string') {
+      updates.deadline = new Date(updates.deadline);
+    }
+    
     const updatedProject = { ...project, ...updates };
     this.projects.set(id, updatedProject);
     return updatedProject;

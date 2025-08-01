@@ -125,7 +125,7 @@ export function PaymentModal({ open, onOpenChange, project }: PaymentModalProps)
     if (!form.formState.isValid) {
       console.error("Form validation failed");
       Object.keys(form.formState.errors).forEach(key => {
-        console.error(`Validation error for ${key}:`, form.formState.errors[key]);
+        console.error(`Validation error for ${key}:`, form.formState.errors[key as keyof typeof form.formState.errors]);
       });
       return;
     }
