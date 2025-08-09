@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { 
   insertUserSchema, insertGroupSchema, insertGroupMemberSchema,
-  insertProjectSchema, insertAccountabilityPartnerSchema, insertContributionSchema 
+  insertPurseSchema, insertAccountabilityPartnerSchema, insertContributionSchema 
 } from "@shared/schema";
 import { z } from "zod";
 
@@ -157,70 +157,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Project routes
-  app.get("/api/groups/:groupId/projects", async (req, res) => {
+  // Purse routes
+  app.get("/api/groups/:groupId/purses", async (req, res) => {
     try {
       const { groupId } = req.params;
-      const projects = await storage.getProjectsByGroup(groupId);
-      res.json(projects);
+      const purses = await storage.getPursesByGroup(groupId);
+      res.json(purses);
     } catch (error) {
-      console.error("Get group projects error:", error);
-      res.status(500).json({ message: "Failed to fetch projects" });
+      console.error("Get group purses error:", error);
+      res.status(500).json({ message: "Failed to fetch purses" });
     }
   });
 
-  app.get("/api/projects/slug/:groupSlug/:projectSlug", async (req, res) => {
+  app.get("/api/purses/slug/:groupSlug/:purseSlug", async (req, res) => {
     try {
-      const { groupSlug, projectSlug } = req.params;
-      const customSlug = `${groupSlug}/${projectSlug}`;
-      const project = await storage.getProjectByCustomSlug(customSlug);
+      const { groupSlug, purseSlug } = req.params;
+      const customSlug = `${groupSlug}/${purseSlug}`;
+      const purse = await storage.getPurseByCustomSlug(customSlug);
       
-      if (!project) {
-        return res.status(404).json({ message: "Project not found" });
+      if (!purse) {
+        return res.status(404).json({ message: "Purse not found" });
       }
       
-      res.json(project);
+      res.json(purse);
     } catch (error) {
-      console.error("Get project by slug error:", error);
-      res.status(500).json({ message: "Failed to fetch project" });
+      console.error("Get purse by slug error:", error);
+      res.status(500).json({ message: "Failed to fetch purse" });
     }
   });
 
-  app.post("/api/groups/:groupId/projects", async (req, res) => {
+  app.post("/api/groups/:groupId/purses", async (req, res) => {
     try {
       const { groupId } = req.params;
-      const projectData = { ...req.body, groupId };
+      const purseData = { ...req.body, groupId };
       
       // Handle deadline conversion - ensure it's a Date object
-      if (projectData.deadline && typeof projectData.deadline === 'string') {
-        projectData.deadline = new Date(projectData.deadline);
+      if (purseData.deadline && typeof purseData.deadline === 'string') {
+        purseData.deadline = new Date(purseData.deadline);
       }
       
-      const project = await storage.createProject(projectData);
-      res.json(project);
+      const purse = await storage.createPurse(purseData);
+      res.json(purse);
     } catch (error) {
-      console.error("Create project error:", error);
-      res.status(400).json({ message: "Invalid project data" });
+      console.error("Create purse error:", error);
+      res.status(400).json({ message: "Invalid purse data" });
     }
   });
 
-  app.get("/api/projects/:projectId", async (req, res) => {
+  app.get("/api/purses/:purseId", async (req, res) => {
     try {
-      const { projectId } = req.params;
-      const project = await storage.getProject(projectId);
-      if (!project) {
-        return res.status(404).json({ message: "Project not found" });
+      const { purseId } = req.params;
+      const purse = await storage.getPurse(purseId);
+      if (!purse) {
+        return res.status(404).json({ message: "Purse not found" });
       }
-      res.json(project);
+      res.json(purse);
     } catch (error) {
-      console.error("Get project error:", error);
-      res.status(500).json({ message: "Failed to fetch project" });
+      console.error("Get purse error:", error);
+      res.status(500).json({ message: "Failed to fetch purse" });
     }
   });
 
-  app.patch("/api/projects/:projectId", async (req, res) => {
+  app.patch("/api/purses/:purseId", async (req, res) => {
     try {
-      const { projectId } = req.params;
+      const { purseId } = req.params;
       const updates = { ...req.body };
       
       // Handle deadline conversion
@@ -228,14 +228,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         updates.deadline = new Date(updates.deadline);
       }
       
-      const project = await storage.updateProject(projectId, updates);
-      if (!project) {
-        return res.status(404).json({ message: "Project not found" });
+      const purse = await storage.updatePurse(purseId, updates);
+      if (!purse) {
+        return res.status(404).json({ message: "Purse not found" });
       }
-      res.json(project);
+      res.json(purse);
     } catch (error) {
-      console.error("Update project error:", error);
-      res.status(400).json({ message: "Failed to update project" });
+      console.error("Update purse error:", error);
+      res.status(400).json({ message: "Failed to update purse" });
     }
   });
 
@@ -303,6 +303,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get group contributions error:", error);
       res.status(500).json({ message: "Failed to fetch contributions" });
+    }
+  });
+
+  app.get("/api/contributions/purse/:purseId", async (req, res) => {
+    try {
+      const { purseId } = req.params;
+      const contributions = await storage.getPurseContributions(purseId);
+      res.json(contributions);
+    } catch (error) {
+      console.error("Get purse contributions error:", error);
+      res.status(500).json({ message: "Failed to fetch purse contributions" });
     }
   });
 
