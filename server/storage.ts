@@ -444,7 +444,7 @@ export class MemStorage implements IStorage {
     this.contributions.set(id, contribution);
 
     // Send notifications to admin and accountability partners
-    await this.sendPaymentNotifications(contribution);
+    await this.createPaymentNotifications(contribution);
 
     // Don't update amounts yet - wait for admin confirmation
     return contribution;
@@ -473,7 +473,39 @@ export class MemStorage implements IStorage {
       this.groupMembers.set(member.id, { ...member, contributedAmount: newContributedAmount });
     }
 
+    // Send confirmation notification to the contributor
+    await this.createConfirmationNotifications(contribution);
+
     return contribution;
+  }
+
+  // Helper method to create confirmation notifications
+  private async createConfirmationNotifications(contribution: Contribution): Promise<void> {
+    const user = this.users.get(contribution.userId);
+    const group = this.groups.get(contribution.groupId);
+    const purse = contribution.purseId ? this.purses.get(contribution.purseId) : null;
+    
+    if (!user || !group) {
+      console.error("User or group not found for confirmation notification");
+      return;
+    }
+    
+    const contributionAmount = new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN'
+    }).format(Number(contribution.amount));
+
+    const entityName = purse ? purse.name : group.name;
+
+    // Notify the contributor that their payment was confirmed
+    await this.createNotification({
+      userId: contribution.userId,
+      type: "payment_confirmed",
+      title: "Payment Confirmed!",
+      message: `Your payment of ${contributionAmount} for ${entityName} has been confirmed and added to the total.`,
+      contributionId: contribution.id,
+      purseId: contribution.purseId,
+    });
   }
 
   async updateContribution(id: string, updates: Partial<Contribution>): Promise<Contribution | undefined> {
@@ -586,8 +618,8 @@ export class MemStorage implements IStorage {
     }
   }
 
-  // Helper method to send payment notifications
-  private async sendPaymentNotifications(contribution: Contribution): Promise<void> {
+  // Helper method to create payment notifications
+  private async createPaymentNotifications(contribution: Contribution): Promise<void> {
     const user = this.users.get(contribution.userId);
     const group = this.groups.get(contribution.groupId);
     const purse = contribution.purseId ? this.purses.get(contribution.purseId) : null;
@@ -626,6 +658,36 @@ export class MemStorage implements IStorage {
         purseId: contribution.purseId,
       });
     }
+  }
+
+  // Helper method to create rejection notifications
+  async createRejectionNotification(contribution: Contribution, reason?: string): Promise<void> {
+    const user = this.users.get(contribution.userId);
+    const group = this.groups.get(contribution.groupId);
+    const purse = contribution.purseId ? this.purses.get(contribution.purseId) : null;
+    
+    if (!user || !group) {
+      console.error("User or group not found for rejection notification");
+      return;
+    }
+    
+    const contributionAmount = new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN'
+    }).format(Number(contribution.amount));
+
+    const entityName = purse ? purse.name : group.name;
+    const reasonText = reason ? ` Reason: ${reason}` : '';
+
+    // Notify the contributor that their payment was rejected
+    await this.createNotification({
+      userId: contribution.userId,
+      type: "payment_rejected",
+      title: "Payment Rejected",
+      message: `Your payment of ${contributionAmount} for ${entityName} was rejected.${reasonText} Please contact the admin for clarification.`,
+      contributionId: contribution.id,
+      purseId: contribution.purseId,
+    });
   }
 }
 

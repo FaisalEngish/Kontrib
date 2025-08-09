@@ -10,6 +10,7 @@ import { CreatePurseModal } from "@/components/create-project-modal";
 import { ManageAccountabilityPartnersModal } from "@/components/manage-accountability-partners-modal";
 import { PurseCard } from "@/components/project-card";
 import { PaymentModal } from "@/components/payment-modal";
+import { PaymentApprovalModal } from "@/components/payment-approval-modal";
 import { NotificationsPanel } from "@/components/notifications-panel";
 import { 
   Plus, 
@@ -23,11 +24,13 @@ import {
   ArrowDown,
   Settings,
   FolderPlus,
-  UserCheck
+  UserCheck,
+  CheckCircle,
+  XCircle
 } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 import { formatNaira } from "@/lib/currency";
-import { Group, Purse } from "@shared/schema";
+import { Group, Purse, ContributionWithDetails } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminDashboard() {
@@ -40,6 +43,8 @@ export default function AdminDashboard() {
   const [selectedPurse, setSelectedPurse] = useState<Purse | null>(null);
   const [expandedGroupId, setExpandedGroupId] = useState<string | null>(null);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [approvalModalOpen, setApprovalModalOpen] = useState(false);
+  const [selectedContribution, setSelectedContribution] = useState<ContributionWithDetails | null>(null);
 
   const { data: groups = [], isLoading: groupsLoading } = useQuery<Group[]>({
     queryKey: ["/api/groups", "admin", user?.id],
@@ -360,24 +365,70 @@ export default function AdminDashboard() {
                 <CardContent>
                   <div className="space-y-4">
                     {recentContributions.slice(0, 5).map((contribution) => (
-                      <div key={contribution.id} className="flex items-center justify-between">
+                      <div 
+                        key={contribution.id} 
+                        className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors ${
+                          contribution.status === 'pending' ? 'border-orange-200 bg-orange-50' : 
+                          contribution.status === 'confirmed' ? 'border-green-200 bg-green-50' : 
+                          'border-red-200 bg-red-50'
+                        }`}
+                        onClick={() => {
+                          setSelectedContribution(contribution);
+                          setApprovalModalOpen(true);
+                        }}
+                        data-testid={`contribution-${contribution.id}`}
+                      >
                         <div className="flex items-center space-x-4">
-                          <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                            <ArrowDown className="text-green-600 h-5 w-5" />
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                            contribution.status === 'pending' ? 'bg-orange-100' :
+                            contribution.status === 'confirmed' ? 'bg-green-100' :
+                            'bg-red-100'
+                          }`}>
+                            {contribution.status === 'pending' ? (
+                              <Clock className={`h-5 w-5 text-orange-600`} />
+                            ) : contribution.status === 'confirmed' ? (
+                              <CheckCircle className={`h-5 w-5 text-green-600`} />
+                            ) : (
+                              <XCircle className={`h-5 w-5 text-red-600`} />
+                            )}
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">{contribution.userName}</p>
-                            <p className="text-sm text-gray-600">{contribution.groupName}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium text-gray-900">{contribution.userName}</p>
+                              <Badge 
+                                variant="secondary" 
+                                className={
+                                  contribution.status === 'pending' ? 'bg-orange-100 text-orange-800' :
+                                  contribution.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                                  'bg-red-100 text-red-800'
+                                }
+                              >
+                                {contribution.status.toUpperCase()}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-gray-600">{contribution.groupName}
+                              {contribution.purseName && (
+                                <span className="text-gray-500"> → {contribution.purseName}</span>
+                              )}
+                            </p>
                             <p className="text-xs text-gray-500">
                               {new Date(contribution.createdAt).toLocaleDateString()}
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold text-green-600">{formatNaira(contribution.amount)}</p>
-                          <Badge className="bg-green-100 text-green-800">
-                            {contribution.status}
-                          </Badge>
+                          <p className="font-semibold text-gray-900">
+                            {formatNaira(Number(contribution.amount))}
+                          </p>
+                          <p className={`text-xs ${
+                            contribution.status === 'pending' ? 'text-orange-600' :
+                            contribution.status === 'confirmed' ? 'text-green-600' :
+                            'text-red-600'
+                          }`}>
+                            {contribution.status === 'pending' ? 'Awaiting Review' :
+                             contribution.status === 'confirmed' ? 'Confirmed' :
+                             'Rejected'}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -489,6 +540,12 @@ export default function AdminDashboard() {
         open={paymentModalOpen}
         onOpenChange={setPaymentModalOpen}
         purse={selectedPurse}
+      />
+
+      <PaymentApprovalModal
+        open={approvalModalOpen}
+        onOpenChange={setApprovalModalOpen}
+        contribution={selectedContribution}
       />
     </div>
   );

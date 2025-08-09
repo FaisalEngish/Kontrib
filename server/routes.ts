@@ -3,7 +3,8 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { 
   insertUserSchema, insertGroupSchema, insertGroupMemberSchema,
-  insertPurseSchema, insertAccountabilityPartnerSchema, insertContributionSchema 
+  insertPurseSchema, insertAccountabilityPartnerSchema, insertContributionSchema,
+  insertNotificationSchema 
 } from "@shared/schema";
 import { z } from "zod";
 
@@ -369,6 +370,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Confirm contribution error:", error);
       res.status(500).json({ message: "Failed to confirm contribution" });
+    }
+  });
+
+  app.patch("/api/contributions/:id/reject", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { reason } = req.body;
+      const contribution = await storage.updateContribution(id, { 
+        status: "rejected" 
+      });
+      
+      if (!contribution) {
+        return res.status(404).json({ message: "Contribution not found" });
+      }
+
+      // Send rejection notification
+      await storage.createRejectionNotification(contribution, reason);
+      
+      res.json(contribution);
+    } catch (error) {
+      console.error("Reject contribution error:", error);
+      res.status(500).json({ message: "Failed to reject contribution" });
     }
   });
 

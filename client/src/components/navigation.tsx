@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Users, Bell, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { NotificationBell } from "@/components/notification-bell";
 import { getCurrentUser, isAdmin, logout } from "@/lib/auth";
 
 export function Navigation() {
@@ -59,12 +60,9 @@ export function Navigation() {
                 </div>
               )}
               
-              <Button variant="ghost" size="sm" className="relative">
-                <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  3
-                </span>
-              </Button>
+              {isAdmin() && (
+                <NotificationBell userId={user.id} />
+              )}
 
               <div className="flex items-center space-x-2">
                 <span className="text-sm font-medium">{user.fullName}</span>
