@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Users, Bell, Menu, X } from "lucide-react";
+import { Users, Bell, Menu, X, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NotificationBell } from "@/components/notification-bell";
@@ -60,6 +60,18 @@ export function Navigation() {
                 </div>
               )}
               
+              <Link href="/whatsapp">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className={location === "/whatsapp" ? "bg-green-50 border-green-500 text-green-600" : ""}
+                  data-testid="whatsapp-nav"
+                >
+                  <MessageCircle className="h-4 w-4 mr-1" />
+                  WhatsApp
+                </Button>
+              </Link>
+              
               {isAdmin() && (
                 <NotificationBell userId={user.id} />
               )}
@@ -100,6 +112,13 @@ export function Navigation() {
                       </Link>
                     </>
                   )}
+                  
+                  <Link href="/whatsapp" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="ghost" className="w-full justify-start">
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      WhatsApp Integration
+                    </Button>
+                  </Link>
                   
                   <Button variant="outline" onClick={handleLogout} className="w-full">
                     Logout

@@ -13,6 +13,7 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import MemberDashboard from "@/pages/member-dashboard";
 import GroupRegistration from "@/pages/group-registration";
 import NotFound from "@/pages/not-found";
+import WhatsAppIntegration from "@/pages/whatsapp-integration";
 
 function Router() {
   const [user, setUser] = useState<User | null>(getCurrentUser());
@@ -52,6 +53,7 @@ function Router() {
         <>
           <Route path="/admin" component={AdminDashboard} />
           <Route path="/member" component={MemberDashboard} />
+          <Route path="/whatsapp" component={WhatsAppIntegration} />
         </>
       )}
       
