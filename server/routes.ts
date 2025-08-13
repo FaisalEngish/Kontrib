@@ -553,6 +553,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // OTP-based registration route
+  app.post("/api/auth/register-with-otp", async (req, res) => {
+    try {
+      const { username, fullName, phoneNumber, otp } = req.body;
+      
+      if (!username || !fullName || !phoneNumber || !otp) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+      
+      // Verify OTP first
+      const isOtpValid = await storage.verifyOtp(phoneNumber, otp);
+      if (!isOtpValid) {
+        return res.status(400).json({ message: "Invalid or expired OTP" });
+      }
+      
+      // Check if username already exists
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+      
+      // Create user with OTP auth
+      const user = await storage.createUser({
+        username,
+        fullName,
+        phoneNumber,
+        password: "otp-auth", // OTP-based auth marker
+        role: "member"
+      });
+      
+      res.json({ 
+        message: "Registration successful",
+        user: { ...user, password: undefined }
+      });
+    } catch (error) {
+      console.error("OTP registration error:", error);
+      res.status(500).json({ message: "Registration failed" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
