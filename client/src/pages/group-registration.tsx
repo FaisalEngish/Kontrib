@@ -21,7 +21,7 @@ import { z } from "zod";
 const registrationFormSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
   username: z.string().min(3, "Username must be at least 3 characters").max(20, "Username must be less than 20 characters"),
-  phoneNumber: z.string().regex(/^(\+234|0)[7-9]\d{9}$/, "Please enter a valid Nigerian phone number"),
+  phoneNumber: z.string().regex(/^\+?[1-9]\d{1,14}$/, "Please enter a valid phone number with country code (e.g., +234, +1, +44)"),
 });
 
 const otpFormSchema = z.object({
@@ -347,7 +347,7 @@ export default function GroupRegistration() {
                     <FormLabel>WhatsApp Phone Number</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="e.g., +2348012345678 or 08012345678" 
+                        placeholder="e.g., +2348012345678, +1234567890, +441234567890" 
                         {...field} 
                         data-testid="input-phone"
                       />

@@ -117,6 +117,7 @@ The application is designed to be easily deployable on platforms like Replit, Ve
 
 ### SMS-Based OTP Authentication System (August 14, 2025)
 - **Complete OTP-Only Authentication**: Rebuilt both registration ("Sign Up") and login workflows to use SMS OTP verification exclusively
+- **Global Phone Number Support**: Updated validation to accept international phone numbers for diaspora users participating in local groups
 - **Unified SMS Authentication**: All OTP codes delivered via SMS text messages for consistent user experience
 - **Two-Step Authentication Flows**: 
   - Sign Up: Full Name + Username (WhatsApp Nickname) + Phone Number → SMS OTP → Account Creation
