@@ -427,10 +427,6 @@ export default function Landing() {
                   <TabsContent value="register">
                     {registrationStep === "form" && (
                       <div className="space-y-4">
-                        <div className="text-center mb-6">
-                          <h3 className="text-lg font-semibold text-gray-900">Sign Up</h3>
-                        </div>
-                        
                         <Form {...registerForm}>
                           <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
                             <FormField
