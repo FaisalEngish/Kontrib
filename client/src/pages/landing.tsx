@@ -136,7 +136,7 @@ export default function Landing() {
       setRegistrationStep("otp-verification");
       toast({
         title: "OTP Sent!",
-        description: `Verification code sent to ${phoneNumber}. Check your WhatsApp messages.`,
+        description: `Verification code sent to ${phoneNumber} via SMS.`,
       });
       
       // For development, show the OTP in console
@@ -292,7 +292,7 @@ export default function Landing() {
                 <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "login" | "register")}>
                   <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="login">Login</TabsTrigger>
-                    <TabsTrigger value="register">Register</TabsTrigger>
+                    <TabsTrigger value="register">Sign Up</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="login">
@@ -428,7 +428,7 @@ export default function Landing() {
                     {registrationStep === "form" && (
                       <div className="space-y-4">
                         <div className="text-center mb-6">
-                          <h3 className="text-lg font-semibold text-gray-900">Get Started</h3>
+                          <h3 className="text-lg font-semibold text-gray-900">Sign Up</h3>
                         </div>
                         
                         <Form {...registerForm}>
@@ -475,7 +475,7 @@ export default function Landing() {
                                   </FormControl>
                                   <FormMessage />
                                   <p className="text-xs text-gray-500 mt-1">
-                                    We'll send an OTP to this number via WhatsApp for verification
+                                    We'll send an OTP to this number via SMS text message for verification
                                   </p>
                                 </FormItem>
                               )}
@@ -492,7 +492,7 @@ export default function Landing() {
                               ) : (
                                 <>
                                   <Smartphone className="h-4 w-4 mr-2" />
-                                  Send OTP via WhatsApp
+                                  Send OTP via SMS
                                 </>
                               )}
                             </Button>

@@ -115,18 +115,18 @@ The application is designed to be easily deployable on platforms like Replit, Ve
 
 ## Recent Changes
 
-### WhatsApp Integration & OTP Authentication Implementation (August 13, 2025)
-- **Comprehensive WhatsApp Integration Page**: Created interactive WhatsApp sharing view with live message previews
-- **OTP-Based Group Registration**: Implemented secure phone number verification for new member registration
-- **Multi-Step Registration Workflow**: Members provide Full Name + Username (WhatsApp Group Nickname) + WhatsApp Phone Number → receive OTP → verify → join group
-- **Dual Authentication System**: Members use OTP-only authentication, Admins use traditional password-based login
-- **Dynamic Registration Form**: Password fields only appear for admin accounts, hidden for member accounts
-- **Enhanced Security**: OTP verification with 10-minute expiration, 3-attempt limit, and automatic cleanup
-- **Mobile-First Design**: Responsive registration forms optimized for mobile WhatsApp users
-- **Development Testing**: OTP displayed in console/toast for development testing (removed in production)
-- **Live Link Previews**: Interactive WhatsApp message previews with emojis, hashtags, and contribution status
-- **Navigation Integration**: Added WhatsApp integration menu item for easy access to sharing features
-- **Test Infrastructure**: Created comprehensive test data and API endpoint testing for OTP workflow
+### SMS-Based OTP Authentication System (August 14, 2025)
+- **Complete OTP-Only Authentication**: Rebuilt both registration ("Sign Up") and login workflows to use SMS OTP verification exclusively
+- **Unified SMS Authentication**: All OTP codes delivered via SMS text messages for consistent user experience
+- **Two-Step Authentication Flows**: 
+  - Sign Up: Full Name + Username (WhatsApp Nickname) + Phone Number → SMS OTP → Account Creation
+  - Login: Username + Phone Number → SMS OTP → Authentication
+- **No Password Requirements**: Eliminated all password fields for streamlined, secure authentication
+- **Enhanced Security**: 6-digit OTP codes with 10-minute expiration, 3-attempt limit, and automatic cleanup
+- **Mobile-First Design**: Responsive forms optimized for SMS-based verification workflow
+- **Development Testing**: OTP codes displayed in console for testing (removed in production)
+- **Comprehensive API**: /api/auth/send-otp, /api/auth/send-login-otp, /api/auth/register-with-otp, /api/auth/login-with-otp
+- **WhatsApp Integration**: Maintained for group sharing and invitations while using SMS for authentication
 
 ### Technical Architecture Updates
 - **OTP Verification Schema**: Added otpVerifications table with phone number, code, expiration tracking
