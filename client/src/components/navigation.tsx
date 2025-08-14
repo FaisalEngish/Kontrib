@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Users, Bell, Menu, X, MessageCircle, TrendingUp } from "lucide-react";
+import { Users, Bell, Menu, X, MessageCircle, TrendingUp, CreditCard, History, Megaphone, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NotificationBell } from "@/components/notification-bell";
@@ -48,16 +48,52 @@ export function Navigation() {
                     Dashboard
                   </Button>
                 </Link>
-                <Link href="/groups">
-                  <Button 
-                    variant={location === "/groups" ? "default" : "ghost"}
-                    size="sm"
-                    className={location === "/groups" ? "bg-nigerian-green text-white" : ""}
-                  >
-                    <Users className="h-4 w-4 mr-1" />
-                    Groups
-                  </Button>
-                </Link>
+                
+                {isAdmin() ? (
+                  <Link href="/groups">
+                    <Button 
+                      variant={location === "/groups" ? "default" : "ghost"}
+                      size="sm"
+                      className={location === "/groups" ? "bg-nigerian-green text-white" : ""}
+                    >
+                      <Users className="h-4 w-4 mr-1" />
+                      Groups
+                    </Button>
+                  </Link>
+                ) : (
+                  <>
+                    <Link href="/make-payment">
+                      <Button 
+                        variant={location === "/make-payment" ? "default" : "ghost"}
+                        size="sm"
+                        className={location === "/make-payment" ? "bg-nigerian-green text-white" : ""}
+                      >
+                        <CreditCard className="h-4 w-4 mr-1" />
+                        Make Payment
+                      </Button>
+                    </Link>
+                    <Link href="/my-contributions">
+                      <Button 
+                        variant={location === "/my-contributions" ? "default" : "ghost"}
+                        size="sm"
+                        className={location === "/my-contributions" ? "bg-nigerian-green text-white" : ""}
+                      >
+                        <History className="h-4 w-4 mr-1" />
+                        My Contributions
+                      </Button>
+                    </Link>
+                    <Link href="/updates">
+                      <Button 
+                        variant={location === "/updates" ? "default" : "ghost"}
+                        size="sm"
+                        className={location === "/updates" ? "bg-nigerian-green text-white" : ""}
+                      >
+                        <Megaphone className="h-4 w-4 mr-1" />
+                        Updates
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
               
               {isAdmin() && (
@@ -94,17 +130,42 @@ export function Navigation() {
                           Dashboard
                         </Button>
                       </Link>
-                      <Link href="/groups" onClick={() => setMobileMenuOpen(false)}>
-                        <Button variant="ghost" className="w-full justify-start">
-                          <Users className="h-4 w-4 mr-2" />
-                          Groups
-                        </Button>
-                      </Link>
+                      
+                      {isAdmin() ? (
+                        <Link href="/groups" onClick={() => setMobileMenuOpen(false)}>
+                          <Button variant="ghost" className="w-full justify-start">
+                            <Users className="h-4 w-4 mr-2" />
+                            Groups
+                          </Button>
+                        </Link>
+                      ) : (
+                        <>
+                          <Link href="/make-payment" onClick={() => setMobileMenuOpen(false)}>
+                            <Button variant="ghost" className="w-full justify-start">
+                              <CreditCard className="h-4 w-4 mr-2" />
+                              Make Payment
+                            </Button>
+                          </Link>
+                          <Link href="/my-contributions" onClick={() => setMobileMenuOpen(false)}>
+                            <Button variant="ghost" className="w-full justify-start">
+                              <History className="h-4 w-4 mr-2" />
+                              My Contributions
+                            </Button>
+                          </Link>
+                          <Link href="/updates" onClick={() => setMobileMenuOpen(false)}>
+                            <Button variant="ghost" className="w-full justify-start">
+                              <Megaphone className="h-4 w-4 mr-2" />
+                              Updates
+                            </Button>
+                          </Link>
+                        </>
+                      )}
                     </>
                   )}
                   
                   <Button variant="outline" onClick={handleLogout} className="w-full">
-                    Logout
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Log Out
                   </Button>
                 </div>
               </SheetContent>

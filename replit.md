@@ -115,6 +115,18 @@ The application is designed to be easily deployable on platforms like Replit, Ve
 
 ## Recent Changes
 
+### MVP-Friendly Navigation System (August 14, 2025)
+- **Role-Based Navigation Menus**: Different navigation items based on user role (Admin vs Member)
+- **Admin Navigation**: Dashboard (overview of all groups/stats) and Groups (manage contribution groups)
+- **Member Navigation**: MVP-focused menu items for streamlined user experience:
+  - Dashboard: View group goal, progress bar, and personal contribution status
+  - Make Payment: See payment instructions and upload proof of transfer
+  - My Contributions: History of payments with dates, amounts, and status
+  - Updates: Announcements or reminders from the admin
+  - Log Out: Exit the account securely
+- **Consistent Design**: Updated both desktop and mobile navigation with proper icons and Nigerian green theming
+- **User Experience**: Simplified navigation focused on core member actions and admin management tasks
+
 ### SMS-Based OTP Authentication System (August 14, 2025)
 - **Complete OTP-Only Authentication**: Rebuilt both registration ("Sign Up") and login workflows to use SMS OTP verification exclusively
 - **Role-Based Registration**: Added ability to sign up as either Group Admin or Group Member with role-specific UI and permissions
