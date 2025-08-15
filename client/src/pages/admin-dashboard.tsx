@@ -232,7 +232,7 @@ export default function AdminDashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="font-bold text-[#0d0d0d] text-[21px]">Welcome back, {user?.fullName}</p>
-                <p className="text-green-200 text-sm">Managing {groups.length} active groups</p>
+                <p className="text-sm text-[#1f241f]">Managing {groups.length} active groups</p>
               </div>
             </div>
           </div>
