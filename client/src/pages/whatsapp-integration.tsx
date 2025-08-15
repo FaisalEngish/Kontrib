@@ -27,15 +27,15 @@ export default function WhatsAppIntegration() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
-  const [selectedPurse, setSelectedPurse] = useState<Purse | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const { data: groups = [] } = useQuery<Group[]>({
     queryKey: ["/api/groups", user?.role === "admin" ? "admin" : "user", user?.id],
     enabled: !!user,
   });
 
-  const { data: purses = [] } = useQuery<Purse[]>({
-    queryKey: ["/api/groups", selectedGroup?.id, "purses"],
+  const { data: projects = [] } = useQuery<Project[]>({
+    queryKey: ["/api/groups", selectedGroup?.id, "projects"],
     enabled: !!selectedGroup,
   });
 
@@ -44,7 +44,7 @@ export default function WhatsAppIntegration() {
     enabled: !!user,
   });
 
-  const generateWhatsAppLink = (group: Group, purse?: Purse) => {
+  const generateWhatsAppLink = (group: Group, project?: Project) => {
     const baseUrl = window.location.origin;
     const groupUrl = project 
       ? `${baseUrl}/${group.customSlug}/${project.customSlug?.split('/')[1] || project.name.toLowerCase().replace(/\s+/g, '')}`

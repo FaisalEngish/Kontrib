@@ -6,9 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Navigation } from "@/components/navigation";
 import { GroupCard } from "@/components/group-card";
 import { CreateGroupModal } from "@/components/create-group-modal";
-import { CreatePurseModal } from "@/components/create-project-modal";
+import { CreateProjectModal } from "@/components/create-project-modal";
 import { ManageAccountabilityPartnersModal } from "@/components/manage-accountability-partners-modal";
-import { PurseCard } from "@/components/project-card";
+import { ProjectCard } from "@/components/project-card";
 import { PaymentModal } from "@/components/payment-modal";
 import { PaymentApprovalModal } from "@/components/payment-approval-modal";
 import { NotificationsPanel } from "@/components/notifications-panel";
@@ -30,17 +30,17 @@ import {
 } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 import { formatNaira } from "@/lib/currency";
-import { Group, Purse, ContributionWithDetails } from "@shared/schema";
+import { Group, Project, ContributionWithDetails } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminDashboard() {
   const user = getCurrentUser();
   const { toast } = useToast();
   const [createGroupModalOpen, setCreateGroupModalOpen] = useState(false);
-  const [createPurseModalOpen, setCreatePurseModalOpen] = useState(false);
+  const [createProjectModalOpen, setCreateProjectModalOpen] = useState(false);
   const [managePartnersModalOpen, setManagePartnersModalOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
-  const [selectedPurse, setSelectedPurse] = useState<Purse | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [expandedGroupId, setExpandedGroupId] = useState<string | null>(null);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
@@ -92,9 +92,9 @@ export default function AdminDashboard() {
     });
   };
 
-  const handleCreatePurse = (group: Group) => {
+  const handleCreateProject = (group: Group) => {
     setSelectedGroup(group);
-    setCreatePurseModalOpen(true);
+    setCreateProjectModalOpen(true);
   };
 
   const handleManagePartners = (group: Group) => {
@@ -106,8 +106,8 @@ export default function AdminDashboard() {
     setExpandedGroupId(expandedGroupId === groupId ? null : groupId);
   };
 
-  const handleContributeToPurse = (purse: Purse) => {
-    setSelectedPurse(purse);
+  const handleContributeToProject = (project: Project) => {
+    setSelectedProject(project);
     setPaymentModalOpen(true);
   };
 
@@ -443,8 +443,6 @@ export default function AdminDashboard() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            
-
             {/* WhatsApp Integration */}
             <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
               <CardContent className="p-6">
@@ -515,7 +513,7 @@ export default function AdminDashboard() {
       <PaymentModal 
         open={paymentModalOpen}
         onOpenChange={setPaymentModalOpen}
-        project={selectedProject}
+        purse={selectedProject}
       />
       <PaymentApprovalModal
         open={approvalModalOpen}

@@ -450,7 +450,7 @@ export class MemStorage implements IStorage {
       description: insertContribution.description || null,
       transactionRef: insertContribution.transactionRef || null,
       proofOfPayment: insertContribution.proofOfPayment || null,
-      purseId: insertContribution.purseId || null,
+      projectId: insertContribution.projectId || null,
     };
     this.contributions.set(id, contribution);
 
@@ -615,7 +615,7 @@ export class MemStorage implements IStorage {
       read: false,
       createdAt: new Date(),
       contributionId: insertNotification.contributionId || null,
-      purseId: insertNotification.purseId || null,
+      projectId: insertNotification.projectId || null,
     };
     this.notifications.set(id, notification);
     return notification;

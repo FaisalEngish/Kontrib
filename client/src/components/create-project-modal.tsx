@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { insertPurseSchema } from "@shared/schema";
+import { insertProjectSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
@@ -153,7 +153,7 @@ export function CreateProjectModal({ open, onOpenChange, groupId, groupName }: C
 
             <div className="bg-green-50 p-3 rounded-lg">
               <p className="text-sm text-green-700">
-                🔗 <strong>Custom URL:</strong> This purse will get its own shareable link in format: kontrib.app/groupname/pursename
+                🔗 <strong>Custom URL:</strong> This project will get its own shareable link in format: kontrib.app/groupname/projectname
               </p>
             </div>
 
@@ -168,10 +168,10 @@ export function CreateProjectModal({ open, onOpenChange, groupId, groupName }: C
               </Button>
               <Button 
                 type="submit" 
-                disabled={createPurseMutation.isPending}
+                disabled={createProjectMutation.isPending}
                 className="flex-1 bg-nigerian-green hover:bg-forest-green"
               >
-                {createPurseMutation.isPending ? "Creating..." : "Create Purse"}
+                {createProjectMutation.isPending ? "Creating..." : "Create Project"}
               </Button>
             </div>
           </form>
