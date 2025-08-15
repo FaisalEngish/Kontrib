@@ -225,14 +225,13 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 pb-20 sm:pb-0">
       <Navigation />
-      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Dashboard Header */}
         <div className="mb-8">
           <div className="bg-gradient-to-r from-nigerian-green to-forest-green rounded-xl p-6 text-white">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-green-100">Welcome back, {user?.fullName}</p>
+                <p className="text-green-100 text-[26px] font-bold">Welcome back, {user?.fullName}</p>
                 <p className="text-green-200 text-sm">Managing {groups.length} active groups</p>
               </div>
             </div>
@@ -514,13 +513,11 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
-
       {/* Create Group Modal */}
       <CreateGroupModal
         open={createGroupModalOpen}
         onOpenChange={setCreateGroupModalOpen}
       />
-
       {/* Purse and Accountability Partner Modals */}
       {selectedGroup && (
         <>
@@ -539,13 +536,11 @@ export default function AdminDashboard() {
           />
         </>
       )}
-
       <PaymentModal 
         open={paymentModalOpen}
         onOpenChange={setPaymentModalOpen}
         purse={selectedPurse}
       />
-
       <PaymentApprovalModal
         open={approvalModalOpen}
         onOpenChange={setApprovalModalOpen}
