@@ -21,7 +21,7 @@ import {
   CheckCircle,
   Camera
 } from "lucide-react";
-import { formatNaira } from "@/lib/utils";
+import { formatNaira } from "@/lib/currency";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
