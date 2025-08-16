@@ -9,7 +9,6 @@ import type { User } from "@shared/schema";
 
 // Pages
 import Landing from "@/pages/landing";
-import Dashboard from "@/pages/dashboard";
 import AdminDashboard from "@/pages/admin-dashboard";
 import MemberDashboard from "@/pages/member-dashboard";
 import Groups from "@/pages/groups";
@@ -50,15 +49,12 @@ function Router() {
   return (
     <Switch>
       {/* Public routes */}
-      <Route path="/" component={user ? Dashboard : Landing} />
+      <Route path="/" component={user ? (isAdmin() ? AdminDashboard : MemberDashboard) : Landing} />
       <Route path="/register/:link" component={GroupRegistration} />
       
       {/* Protected routes */}
       {user && (
         <>
-          {/* Main dashboard - role-based content */}
-          <Route path="/dashboard" component={Dashboard} />
-          
           {/* Member pages */}
           <Route path="/make-payment" component={MakePayment} />
           <Route path="/my-contributions" component={MyContributions} />
