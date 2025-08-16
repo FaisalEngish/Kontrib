@@ -76,8 +76,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!group) {
         return res.status(404).json({ message: "Group not found" });
       }
+
+      // Get projects for this group
+      const projects = await storage.getProjectsByGroup(group.id);
       
-      res.json(group);
+      // Get member count
+      const members = await storage.getGroupMembers(group.id);
+      
+      // Calculate totals across all projects
+      const totalTarget = projects.reduce((sum: number, project: any) => 
+        sum + parseFloat(project.targetAmount || "0"), 0
+      ).toString();
+      
+      const totalCollected = projects.reduce((sum: number, project: any) => 
+        sum + parseFloat(project.collectedAmount || "0"), 0
+      ).toString();
+      
+      const landingData = {
+        group,
+        projects: projects.map((project: any) => ({
+          id: project.id,
+          name: project.name,
+          targetAmount: project.targetAmount,
+          collectedAmount: project.collectedAmount,
+          deadline: project.deadline
+        })),
+        memberCount: members.length,
+        totalTarget,
+        totalCollected
+      };
+      
+      res.json(landingData);
     } catch (error) {
       console.error("Get group by link error:", error);
       res.status(500).json({ message: "Failed to fetch group" });
@@ -151,14 +180,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userId: group.adminId,
           type: "member_joined",
           title: "New Member Joined",
-          message: `${user.fullName} (@${user.username}) has joined your group "${group.name}"`,
-          data: JSON.stringify({
-            groupId: group.id,
-            groupName: group.name,
-            newMemberId: user.id,
-            newMemberName: user.fullName,
-            newMemberUsername: user.username
-          })
+          message: `${user.fullName} (@${user.username}) has joined your group "${group.name}"`
         });
       }
       
@@ -675,6 +697,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("OTP registration error:", error);
       res.status(500).json({ message: "Registration failed" });
+    }
+  });
+
+  // Bank details endpoint for payment instructions
+  app.get("/api/bank-details/:projectId", async (req, res) => {
+    try {
+      const { projectId } = req.params;
+      const project = await storage.getProject(projectId);
+      
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+      
+      const group = await storage.getGroup(project.groupId);
+      if (!group) {
+        return res.status(404).json({ message: "Group not found" });
+      }
+      
+      const admin = await storage.getUser(group.adminId);
+      if (!admin) {
+        return res.status(404).json({ message: "Admin not found" });
+      }
+      
+      // Mock bank details for demo - in production this would come from admin settings
+      const bankDetails = {
+        bankName: "Access Bank",
+        accountNumber: "0123456789", 
+        accountName: admin.fullName || "Admin User"
+      };
+      
+      res.json(bankDetails);
+    } catch (error) {
+      console.error("Get bank details error:", error);
+      res.status(500).json({ message: "Failed to fetch bank details" });
+    }
+  });
+
+  // Member projects endpoint for payment selection
+  app.get("/api/contributions/member/:userId/projects", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const memberGroups = await storage.getUserGroups(userId);
+      const projects = [];
+      
+      for (const groupMember of memberGroups) {
+        const group = await storage.getGroup(groupMember.groupId);
+        const groupProjects = await storage.getProjectsByGroup(groupMember.groupId);
+        
+        for (const project of groupProjects) {
+          projects.push({
+            id: project.id,
+            name: project.name,
+            targetAmount: project.targetAmount,
+            collectedAmount: project.collectedAmount,
+            deadline: project.deadline,
+            groupId: group?.id,
+            groupName: group?.name
+          });
+        }
+      }
+      
+      res.json(projects);
+    } catch (error) {
+      console.error("Get member projects error:", error);
+      res.status(500).json({ message: "Failed to fetch member projects" });
     }
   });
 

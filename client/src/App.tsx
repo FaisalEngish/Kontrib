@@ -18,6 +18,8 @@ import Updates from "@/pages/updates";
 import GroupRegistration from "@/pages/group-registration";
 import NotFound from "@/pages/not-found";
 import WhatsAppIntegration from "@/pages/whatsapp-integration";
+import GroupLanding from "@/pages/group-landing";
+import MemberPayment from "@/pages/member-payment";
 
 function Router() {
   const [user, setUser] = useState<User | null>(getCurrentUser());
@@ -51,6 +53,8 @@ function Router() {
       {/* Public routes */}
       <Route path="/" component={user ? (isAdmin() ? AdminDashboard : MemberDashboard) : Landing} />
       <Route path="/register/:link" component={GroupRegistration} />
+      <Route path="/join/:registrationId" component={GroupLanding} />
+      <Route path="/member-payment" component={MemberPayment} />
       
       {/* Protected routes */}
       {user && (
