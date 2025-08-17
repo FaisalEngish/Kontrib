@@ -34,7 +34,8 @@ interface GroupLandingData {
 }
 
 export default function GroupLanding() {
-  const { registrationId } = useParams();
+  const params = useParams();
+  const registrationId = params.registrationId || params.link;
   const [, navigate] = useLocation();
 
   // Fetch group landing data

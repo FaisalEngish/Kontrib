@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useRoute, useLocation } from "wouter";
+import { useRoute, useLocation, useParams } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,8 @@ type OtpFormData = z.infer<typeof otpFormSchema>;
 
 export default function GroupRegistration() {
   const [match, params] = useRoute("/register/:link");
+  const urlParams = useParams();
+  const registrationLink = params?.link || urlParams.link;
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -42,8 +44,8 @@ export default function GroupRegistration() {
   const [newUser, setNewUser] = useState<any>(null);
 
   const { data: group, isLoading, error } = useQuery({
-    queryKey: ["/api/groups/registration", params?.link],
-    enabled: !!params?.link,
+    queryKey: ["/api/groups/registration", registrationLink],
+    enabled: !!registrationLink,
   });
 
   const { data: purses = [] } = useQuery({
