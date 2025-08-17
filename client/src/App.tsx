@@ -20,6 +20,7 @@ import NotFound from "@/pages/not-found";
 import WhatsAppIntegration from "@/pages/whatsapp-integration";
 import GroupLanding from "@/pages/group-landing";
 import MemberPayment from "@/pages/member-payment";
+import JoinGroup from "@/pages/join-group";
 
 function Router() {
   const [user, setUser] = useState<User | null>(getCurrentUser());
@@ -60,10 +61,12 @@ function Router() {
       {user && (
         <>
           {/* Member pages */}
+          <Route path="/dashboard" component={isAdmin() ? AdminDashboard : MemberDashboard} />
           <Route path="/make-payment" component={MakePayment} />
           <Route path="/my-contributions" component={MyContributions} />
           <Route path="/updates" component={Updates} />
           <Route path="/groups" component={Groups} />
+          <Route path="/join-group" component={JoinGroup} />
           
           {/* Legacy admin/member specific routes */}
           <Route path="/admin" component={AdminDashboard} />

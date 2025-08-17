@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Users, Bell, Menu, X, MessageCircle, CreditCard, History, Megaphone, LogOut, FileText } from "lucide-react";
+import { Users, Bell, Menu, X, MessageCircle, CreditCard, History, Megaphone, LogOut, FileText, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NotificationBell } from "@/components/notification-bell";
@@ -70,6 +70,16 @@ export function Navigation() {
                   </>
                 ) : (
                   <>
+                    <Link href="/join-group">
+                      <Button 
+                        variant={location === "/join-group" ? "default" : "ghost"}
+                        size="sm"
+                        className={location === "/join-group" ? "bg-nigerian-green text-white" : ""}
+                      >
+                        <UserPlus className="h-4 w-4 mr-1" />
+                        Join Group
+                      </Button>
+                    </Link>
                     <Link href="/make-payment">
                       <Button 
                         variant={location === "/make-payment" ? "default" : "ghost"}
@@ -165,6 +175,12 @@ export function Navigation() {
                         </>
                       ) : (
                         <>
+                          <Link href="/join-group" onClick={() => setMobileMenuOpen(false)}>
+                            <Button variant="ghost" className="w-full justify-start">
+                              <UserPlus className="h-4 w-4 mr-2" />
+                              Join Group
+                            </Button>
+                          </Link>
                           <Link href="/make-payment" onClick={() => setMobileMenuOpen(false)}>
                             <Button variant="ghost" className="w-full justify-start">
                               <CreditCard className="h-4 w-4 mr-2" />
