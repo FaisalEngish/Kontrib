@@ -81,7 +81,9 @@ export default function GroupRegistration() {
       setStep("otp-verification");
       toast({
         title: "OTP Sent!",
-        description: `Verification code sent to ${phoneNumber}. Check your WhatsApp messages.`,
+        description: data.fallback 
+          ? `Verification code sent (development mode). Check console for OTP.`
+          : `Verification code sent to ${phoneNumber} via WhatsApp.`,
       });
       
       // For development, show the OTP in console

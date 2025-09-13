@@ -516,14 +516,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Send OTP via WhatsApp
       const sent = await whatsappService.sendOTP(phoneNumber, otp);
+      const isDevelopment = process.env.NODE_ENV === "development";
       
       if (!sent) {
-        console.error("Failed to send WhatsApp OTP, falling back to console log");
-        console.log(`OTP for ${phoneNumber}: ${otp}`);
-        return res.status(500).json({ message: "Failed to send OTP via WhatsApp" });
+        console.error("Failed to send WhatsApp OTP, using fallback");
+        
+        // In development, allow testing even if WhatsApp fails
+        if (isDevelopment) {
+          console.log(`Development OTP for ${phoneNumber}: ${otp}`);
+          return res.json({ 
+            message: "OTP sent successfully (development mode)",
+            expiresAt: otpVerification.expiresAt,
+            developmentOtp: otp,
+            fallback: true
+          });
+        }
+        
+        // In production, return error but don't expose OTP
+        return res.status(503).json({ 
+          message: "Unable to send WhatsApp message. Please check your WhatsApp number and try again." 
+        });
       }
-      
-      const isDevelopment = process.env.NODE_ENV === "development";
       
       res.json({ 
         message: "OTP sent successfully via WhatsApp",
