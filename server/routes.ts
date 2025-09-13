@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { whatsappService } from "./whatsapp-service";
 import { 
   insertUserSchema, insertGroupSchema, insertGroupMemberSchema,
   insertProjectSchema, insertAccountabilityPartnerSchema, insertContributionSchema,
@@ -494,6 +495,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Phone number is required" });
       }
       
+      // Validate WhatsApp number format
+      if (!whatsappService.isValidWhatsAppNumber(phoneNumber)) {
+        return res.status(400).json({ 
+          message: "Please enter a valid WhatsApp number with country code (e.g., +234, +1, +44)" 
+        });
+      }
+      
       // Generate random 6-digit OTP
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       
@@ -506,15 +514,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         expiresAt
       });
       
-      // In a real application, you would send the OTP via SMS
-      // For development, we'll return it in the response
-      console.log(`OTP for ${phoneNumber}: ${otp}`);
+      // Send OTP via WhatsApp
+      const sent = await whatsappService.sendOTP(phoneNumber, otp);
+      
+      if (!sent) {
+        console.error("Failed to send WhatsApp OTP, falling back to console log");
+        console.log(`OTP for ${phoneNumber}: ${otp}`);
+        return res.status(500).json({ message: "Failed to send OTP via WhatsApp" });
+      }
+      
+      const isDevelopment = process.env.NODE_ENV === "development";
       
       res.json({ 
-        message: "OTP sent successfully",
-        // Remove this in production - only for development
-        developmentOtp: otp,
-        expiresAt: otpVerification.expiresAt
+        message: "OTP sent successfully via WhatsApp",
+        expiresAt: otpVerification.expiresAt,
+        // Only show OTP in development mode
+        ...(isDevelopment && { developmentOtp: otp })
       });
     } catch (error) {
       console.error("Send OTP error:", error);
@@ -606,6 +621,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Username and phone number are required" });
       }
       
+      // Validate WhatsApp number format
+      if (!whatsappService.isValidWhatsAppNumber(phoneNumber)) {
+        return res.status(400).json({ 
+          message: "Please enter a valid WhatsApp number with country code (e.g., +234, +1, +44)" 
+        });
+      }
+      
       // Check if user exists with this username and phone number
       const user = await storage.getUserByUsername(username);
       if (!user || user.phoneNumber !== phoneNumber) {
@@ -619,7 +641,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const isDevelopment = process.env.NODE_ENV === "development";
       
       res.json({
-        message: "Login OTP sent successfully",
+        message: "Login OTP sent successfully via WhatsApp",
         expiresAt: otpData.expiresAt,
         ...(isDevelopment && { developmentOtp: otpData.code })
       });
