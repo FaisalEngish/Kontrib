@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, Shield, Smartphone, TrendingUp, CheckCircle } from "lucide-react";
+import { Users, Shield, MessageSquare, TrendingUp, CheckCircle } from "lucide-react";
 import { insertUserSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { setCurrentUser } from "@/lib/auth";
@@ -82,7 +82,7 @@ export default function Landing() {
       setLoginStep("otp-verification");
       toast({
         title: "OTP Sent!",
-        description: `Verification code sent to ${variables.phoneNumber} via SMS.`,
+        description: `Verification code sent to ${variables.phoneNumber} via WhatsApp.`,
       });
       
       // For development, show the OTP in console
@@ -332,7 +332,7 @@ export default function Landing() {
                                 </FormControl>
                                 <FormMessage />
                                 <p className="text-xs text-gray-500 mt-1">
-                                  We'll send an OTP to this number via SMS for verification
+                                  We'll send an OTP to this number via WhatsApp for verification
                                 </p>
                               </FormItem>
                             )}
@@ -348,8 +348,8 @@ export default function Landing() {
                               "Sending OTP..."
                             ) : (
                               <>
-                                <Smartphone className="h-4 w-4 mr-2" />
-                                Send OTP via SMS
+                                <MessageSquare className="h-4 w-4 mr-2" />
+                                Send OTP via WhatsApp
                               </>
                             )}
                           </Button>
