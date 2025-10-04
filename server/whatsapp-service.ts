@@ -63,7 +63,7 @@ class WhatsAppService {
         to: cleanPhoneNumber,
         type: "template",
         template: {
-          name: "kontrib_otp",
+          name: "kontrib_app",
           language: {
             code: "en"
           },
