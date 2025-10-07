@@ -449,16 +449,16 @@ export default function MakePayment() {
                                 id="proof-upload"
                                 data-testid="file-upload"
                               />
-                              <label htmlFor="proof-upload">
-                                <Button 
-                                  type="button" 
-                                  variant="outline" 
-                                  className="cursor-pointer"
-                                  disabled={uploading}
-                                >
+                              <Button 
+                                asChild
+                                variant="outline" 
+                                className="cursor-pointer"
+                                disabled={uploading}
+                              >
+                                <label htmlFor="proof-upload">
                                   {uploading ? "Uploading..." : "Choose File"}
-                                </Button>
-                              </label>
+                                </label>
+                              </Button>
                               {field.value && (
                                 <div className="flex items-center justify-center text-green-600 text-sm mt-2">
                                   <CheckCircle className="h-4 w-4 mr-1" />
