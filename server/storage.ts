@@ -846,7 +846,7 @@ export class MemStorage implements IStorage {
 // Database Storage implementation using Drizzle ORM
 import { db } from "./db";
 import { users as usersTable, groups as groupsTable, groupMembers as groupMembersTable, projects as projectsTable, accountabilityPartners as accountabilityPartnersTable, contributions as contributionsTable, notifications as notificationsTable, otpVerifications as otpVerificationsTable } from "@shared/schema";
-import { eq, and, gt, lt, sql as drizzleSql, desc } from "drizzle-orm";
+import { eq, and, gt, lt, sql as drizzleSql, desc, inArray } from "drizzle-orm";
 
 export class DbStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
@@ -1190,7 +1190,7 @@ export class DbStorage implements IStorage {
       .leftJoin(usersTable, eq(contributionsTable.userId, usersTable.id))
       .leftJoin(projectsTable, eq(contributionsTable.projectId, projectsTable.id))
       .leftJoin(groupsTable, eq(contributionsTable.groupId, groupsTable.id))
-      .where(drizzleSql`${contributionsTable.groupId} = ANY(${groupIds})`)
+      .where(inArray(contributionsTable.groupId, groupIds))
       .orderBy(desc(contributionsTable.createdAt));
 
     return result.map(row => ({
@@ -1258,12 +1258,12 @@ export class DbStorage implements IStorage {
     const membersResult = await db
       .select({ count: drizzleSql<number>`count(DISTINCT ${groupMembersTable.userId})::int` })
       .from(groupMembersTable)
-      .where(drizzleSql`${groupMembersTable.groupId} = ANY(${groupIds})`);
+      .where(inArray(groupMembersTable.groupId, groupIds));
 
     const contributionsResult = await db
       .select()
       .from(contributionsTable)
-      .where(drizzleSql`${contributionsTable.groupId} = ANY(${groupIds})`);
+      .where(inArray(contributionsTable.groupId, groupIds));
 
     const totalCollections = contributionsResult
       .filter(c => c.status === 'confirmed')
