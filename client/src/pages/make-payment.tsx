@@ -291,16 +291,18 @@ export default function MakePayment() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {userGroups.map((membership) => (
-                                <SelectItem key={membership.id} value={membership.groupId}>
-                                  <div className="flex items-center justify-between w-full">
-                                    <span>{membership.group.name}</span>
-                                    <Badge variant="secondary" className="ml-2">
-                                      {membership.group.memberCount || 0} members
-                                    </Badge>
-                                  </div>
-                                </SelectItem>
-                              ))}
+                              {userGroups.map((membership) => 
+                                membership.groupId ? (
+                                  <SelectItem key={membership.id} value={membership.groupId}>
+                                    <div className="flex items-center justify-between w-full">
+                                      <span>{membership.group.name}</span>
+                                      <Badge variant="secondary" className="ml-2">
+                                        {membership.group.memberCount || 0} members
+                                      </Badge>
+                                    </div>
+                                  </SelectItem>
+                                ) : null
+                              )}
                             </SelectContent>
                           </Select>
                           <FormMessage />
