@@ -291,8 +291,9 @@ export default function MakePayment() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {userGroups.map((membership) => 
-                                membership.groupId ? (
+                              {userGroups
+                                .filter((membership) => membership.groupId && membership.groupId.trim() !== '')
+                                .map((membership) => (
                                   <SelectItem key={membership.id} value={membership.groupId}>
                                     <div className="flex items-center justify-between w-full">
                                       <span>{membership.group.name}</span>
@@ -301,8 +302,7 @@ export default function MakePayment() {
                                       </Badge>
                                     </div>
                                   </SelectItem>
-                                ) : null
-                              )}
+                                ))}
                             </SelectContent>
                           </Select>
                           <FormMessage />
