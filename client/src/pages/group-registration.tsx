@@ -43,10 +43,12 @@ export default function GroupRegistration() {
   const [otpData, setOtpData] = useState<{ phoneNumber: string; expiresAt: string } | null>(null);
   const [newUser, setNewUser] = useState<any>(null);
 
-  const { data: group, isLoading, error } = useQuery({
+  const { data: groupData, isLoading, error } = useQuery({
     queryKey: ["/api/groups/registration", registrationLink],
     enabled: !!registrationLink,
   });
+
+  const group = groupData?.group;
 
   const { data: purses = [] } = useQuery({
     queryKey: ["/api/groups", group?.id, "purses"],
