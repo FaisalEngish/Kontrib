@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create OG Image</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    #preview {
+      margin: 20px 0;
+      border: 2px solid #ccc;
+    }
+    button {
+      background: #16a34a;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    button:hover {
+      background: #15803d;
+    }
+    .instructions {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Kontrib OG Image Generator</h1>
+  <div class="instructions">
+    <h2>Instructions:</h2>
+    <ol>
+      <li>Click the "Generate & Download" button below</li>
+      <li>The image will be downloaded as "og-image.jpg"</li>
+      <li>Move the downloaded file to <code>client/public/og-image.jpg</code></li>
+      <li>Deploy your app and test with Facebook Sharing Debugger</li>
+    </ol>
+  </div>
+  
+  <canvas id="preview" width="1200" height="630"></canvas>
+  <br>
+  <button onclick="generateAndDownload()">Generate & Download OG Image</button>
+  
+  <script>
+    const canvas = document.getElementById('preview');
+    const ctx = canvas.getContext('2d');
+    
+    function drawImage() {
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0, 1200, 630);
+      gradient.addColorStop(0, '#16a34a');
+      gradient.addColorStop(1, '#15803d');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1200, 630);
+      
+      // Decorative circles
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(150, 150, 80, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(1050, 480, 80, 0, Math.PI * 2);
+      ctx.stroke();
+      
+      // Main title
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 120px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Kontrib', 600, 260);
+      
+      // Subtitle
+      ctx.font = '40px sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.fillText('Group Financial Management', 600, 335);
+      
+      // Description
+      ctx.font = '28px sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      ctx.fillText('Manage contributions, payments & verification', 600, 395);
+      
+      // MaxTech BD branding
+      ctx.font = '24px sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx.fillText('Powered by MaxTech BD', 600, 570);
+    }
+    
+    function generateAndDownload() {
+      drawImage();
+      
+      canvas.toBlob(function(blob) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'og-image.jpg';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        alert('✅ OG image downloaded! Move it to client/public/og-image.jpg');
+      }, 'image/jpeg', 0.95);
+    }
+    
+    // Draw preview on load
+    drawImage();
+  </script>
+</body>
+</html>
