@@ -1219,6 +1219,38 @@ export class DbStorage implements IStorage {
     return result[0];
   }
 
+  async createRejectionNotification(contribution: Contribution, reason?: string): Promise<void> {
+    const user = await this.getUser(contribution.userId);
+    const group = await this.getGroup(contribution.groupId);
+    const project = contribution.projectId ? await this.getProject(contribution.projectId) : null;
+    
+    if (!user || !group) {
+      console.error("User or group not found for rejection notification");
+      return;
+    }
+    
+    const contributionAmount = new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN'
+    }).format(Number(contribution.amount));
+    
+    const entityName = project ? project.name : group.name;
+    
+    let message = `Your payment of ${contributionAmount} for ${entityName} was not approved.`;
+    if (reason) {
+      message += ` Reason: ${reason}`;
+    }
+    
+    await this.createNotification({
+      userId: contribution.userId,
+      type: "payment_rejected",
+      title: "Payment Not Approved",
+      message,
+      contributionId: contribution.id,
+      projectId: contribution.projectId
+    });
+  }
+
   async markNotificationRead(notificationId: string): Promise<void> {
     await db.update(notificationsTable).set({ read: true }).where(eq(notificationsTable.id, notificationId));
   }
