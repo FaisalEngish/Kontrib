@@ -115,6 +115,16 @@ The application is designed to be easily deployable on platforms like Replit, Ve
 
 ## Recent Changes
 
+### Dynamic Open Graph Meta Tags (October 10, 2025)
+- **WhatsApp Link Previews**: Implemented dynamic OG meta tags for group registration links
+- **Crawler Detection**: Middleware automatically detects social media crawlers (WhatsApp, Facebook, Twitter, etc.)
+- **Group-Specific Previews**: Each group registration link shows custom preview with:
+  - Group name in title (e.g., "Join Farid Developers on Kontrib")
+  - Group description
+  - Custom OG image with proper dimensions
+- **No SPA Disruption**: Regular users see normal app, crawlers get optimized HTML
+- **File**: `server/og-middleware.ts` handles crawler detection and dynamic HTML generation
+
 ### Core Member Pages Implementation (August 14, 2025)
 - **Complete Page Set**: Created all core pages linked to member navigation menu items
 - **Unified Dashboard** (`/dashboard`): Role-based dashboard showing different content for Admin vs Member users
