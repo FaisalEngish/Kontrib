@@ -106,11 +106,14 @@ export default function Groups() {
   const handleShareGroup = (group: any) => {
     const shareUrl = `${window.location.origin}/join/${group.registrationLink}`;
     
+    // For WhatsApp to show link preview, include URL in text instead of separate url field
+    const shareText = `🎯 You're invited to join "${group.name}" on Kontrib!\n\n💰 Manage contributions with transparency and ease.\n\n${shareUrl}`;
+    
     if (navigator.share) {
+      // Include URL in text for better WhatsApp preview support
       navigator.share({
         title: `Join ${group.name}`,
-        text: `You're invited to contribute to ${group.name}`,
-        url: shareUrl,
+        text: shareText,
       });
     } else if (navigator.clipboard) {
       navigator.clipboard.writeText(shareUrl);
@@ -119,10 +122,8 @@ export default function Groups() {
         description: "Group registration link copied to clipboard.",
       });
     } else {
-      // Fallback: Generate WhatsApp message
-      const whatsappMessage = encodeURIComponent(
-        `🎯 You're invited to join our contribution group "${group.name}"!\n\n💰 Manage contributions with transparency and ease.\n\n👥 Join here: ${shareUrl}\n\n#Kontrib #GroupContribution`
-      );
+      // Fallback: Open WhatsApp directly with pre-filled message
+      const whatsappMessage = encodeURIComponent(shareText);
       window.open(`https://wa.me/?text=${whatsappMessage}`, '_blank');
     }
   };
