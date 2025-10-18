@@ -95,13 +95,34 @@ export async function handleDynamicOGTags(
   }
 
   const urlPath = req.path || req.originalUrl;
-  const registerMatch = urlPath.match(/^\/register\/([^\/]+)/);
   
-  if (!registerMatch) {
+  // Match multiple route patterns:
+  // 1. /register/:groupLink
+  // 2. /join/:groupLink
+  // 3. /:groupLink (short URL pattern, but exclude reserved routes)
+  const registerMatch = urlPath.match(/^\/register\/([^\/]+)/);
+  const joinMatch = urlPath.match(/^\/join\/([^\/]+)/);
+  const shortMatch = urlPath.match(/^\/([^\/]+)$/);
+  
+  let groupLink: string | null = null;
+  
+  if (registerMatch) {
+    groupLink = registerMatch[1];
+  } else if (joinMatch) {
+    groupLink = joinMatch[1];
+  } else if (shortMatch) {
+    // Exclude reserved routes like /api, /assets, etc.
+    const reservedRoutes = ['api', 'assets', 'login', 'register', 'join', 'admin', 'dashboard'];
+    const potentialLink = shortMatch[1];
+    
+    if (!reservedRoutes.includes(potentialLink.toLowerCase())) {
+      groupLink = potentialLink;
+    }
+  }
+  
+  if (!groupLink) {
     return false;
   }
-
-  const groupLink = registerMatch[1];
   
   try {
     const group = await storage.getGroupByRegistrationLink(groupLink);
