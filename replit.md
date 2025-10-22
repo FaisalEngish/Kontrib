@@ -44,3 +44,21 @@ The application follows a component-based architecture for the frontend and a RE
 - **TypeScript**: Used for static type checking across the full stack.
 - **Vite**: Fast build tool and development server.
 - **Tailwind CSS**: Utility-first CSS framework.
+- **canvas**: Node.js Canvas API implementation for dynamic image generation.
+
+## Recent Technical Updates
+
+### Dynamic OG Image Generation (October 22, 2025)
+Implemented visual WhatsApp link previews that display the Join Card design instead of generic text. When users share group links on WhatsApp, Facebook, or Twitter, the preview now shows a dynamically generated image featuring:
+- Kontrib logo and branding
+- Group name and project details
+- Progress bar with Nigerian English phrasing
+- Deadline countdown and member count
+- Professional card-style layout matching the Join Page design
+
+**Technical Implementation:**
+- Canvas-based PNG generation (1200x630px) at `/api/og-image/:identifier`
+- OG middleware updated to serve dynamic image URLs to social media crawlers
+- 24-hour browser caching for optimal performance
+- Text truncation and progress bar clamping for edge cases
+- System dependencies: libuuid, cairo, pango, libpng, libjpeg
