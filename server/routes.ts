@@ -84,6 +84,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get member count
       const members = await storage.getGroupMembers(group.id);
       
+      // Check if current user is already a member
+      const userId = (req.session as any)?.userId;
+      let isMember = false;
+      if (userId) {
+        const membership = await storage.getGroupMember(group.id, userId);
+        isMember = !!membership;
+      }
+      
       // Calculate totals across all projects
       const totalTarget = projects.reduce((sum: number, project: any) => 
         sum + parseFloat(project.targetAmount || "0"), 0
@@ -104,7 +112,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })),
         memberCount: members.length,
         totalTarget,
-        totalCollected
+        totalCollected,
+        isMember
       };
       
       res.json(landingData);
@@ -134,6 +143,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get member count
       const members = await storage.getGroupMembers(group.id);
       
+      // Check if current user is already a member
+      const userId = (req.session as any)?.userId;
+      let isMember = false;
+      if (userId) {
+        const membership = await storage.getGroupMember(group.id, userId);
+        isMember = !!membership;
+      }
+      
       // Calculate totals across all projects
       const totalTarget = projects.reduce((sum: number, project: any) => 
         sum + parseFloat(project.targetAmount || "0"), 0
@@ -154,7 +171,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })),
         memberCount: members.length,
         totalTarget,
-        totalCollected
+        totalCollected,
+        isMember
       };
       
       res.json(landingData);

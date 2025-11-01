@@ -40,6 +40,7 @@ interface GroupData {
   memberCount: number;
   totalTarget: string;
   totalCollected: string;
+  isMember: boolean;
 }
 
 export default function JoinGroupPage() {
@@ -359,25 +360,43 @@ export default function JoinGroupPage() {
 
               {/* Join Button */}
               {user ? (
-                <Button 
-                  onClick={handleJoinGroup}
-                  disabled={joinGroupMutation.isPending}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-lg font-semibold rounded-lg shadow-lg"
-                  data-testid="button-join-group"
-                >
-                  {joinGroupMutation.isPending ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Joining...
-                    </>
-                  ) : (
-                    <>
+                groupPreview.isMember ? (
+                  <div className="space-y-3">
+                    <div className="w-full bg-green-50 border-2 border-green-600 text-green-700 py-6 text-lg font-semibold rounded-lg shadow-lg flex items-center justify-center">
                       <CheckCircle2 className="w-5 h-5 mr-2" />
-                      Join This Group
+                      Already Joined
+                    </div>
+                    <Button
+                      onClick={() => setLocation("/dashboard")}
+                      variant="outline"
+                      className="w-full py-4 text-green-600 border-green-600 hover:bg-green-50"
+                      data-testid="button-go-to-dashboard"
+                    >
+                      Go to Dashboard
                       <ArrowRight className="w-5 h-5 ml-2" />
-                    </>
-                  )}
-                </Button>
+                    </Button>
+                  </div>
+                ) : (
+                  <Button 
+                    onClick={handleJoinGroup}
+                    disabled={joinGroupMutation.isPending}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-lg font-semibold rounded-lg shadow-lg"
+                    data-testid="button-join-group"
+                  >
+                    {joinGroupMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        Joining...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-5 h-5 mr-2" />
+                        Join This Group
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </>
+                    )}
+                  </Button>
+                )
               ) : (
                 <div className="space-y-3">
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
