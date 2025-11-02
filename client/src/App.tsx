@@ -86,7 +86,7 @@ function Router() {
       <Route path="/:groupSlug">
         {(params) => {
           // Skip if it matches known routes
-          const knownRoutes = ['api', 'assets', 'login', 'register', 'join', 'admin', 'dashboard', 'member', 'groups', 'group', 'make-payment', 'my-contributions', 'updates', 'whatsapp', 'join-group', 'member-payment'];
+          const knownRoutes = ['api', 'assets', 'login', 'register', 'join', 'admin', 'dashboard', 'member', 'groups', 'group', 'project', 'make-payment', 'my-contributions', 'updates', 'whatsapp', 'join-group', 'member-payment'];
           if (knownRoutes.includes(params.groupSlug?.toLowerCase() || '')) {
             return <NotFound />;
           }
