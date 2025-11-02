@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NotificationBell } from "@/components/notification-bell";
 import { getCurrentUser, isAdmin, logout } from "@/lib/auth";
+import kontribLogo from "@assets/WhatsApp Image 2025-10-19 at 01.29.52_ced7d354_1762106313529.jpg";
 
 export function Navigation() {
   const [location, setLocation] = useLocation();
@@ -24,9 +25,12 @@ export function Navigation() {
         <div className="flex justify-between items-center h-16">
           <Link href="/">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-nigerian-green rounded-lg flex items-center justify-center">
-                <Users className="text-white h-6 w-6" />
-              </div>
+              <img 
+                src={kontribLogo} 
+                alt="Kontrib Logo" 
+                className="h-10 w-auto object-contain"
+                data-testid="img-kontrib-logo"
+              />
               <div>
                 <h1 className="text-xl font-bold text-nigerian-green">Kontrib</h1>
                 <p className="text-xs text-gray-600">Group Financial Management</p>
