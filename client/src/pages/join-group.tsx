@@ -260,6 +260,9 @@ export default function JoinGroupPage() {
                 onChange={(e) => handleLinkInput(e.target.value)}
                 data-testid="input-group-link"
               />
+              <p className="text-xs text-gray-500">
+                Copy and Paste group link shared by Admin
+              </p>
               {groupLink && !extractedIdentifier && (
                 <div className="flex items-center gap-2 text-sm text-orange-600">
                   <AlertCircle className="w-4 h-4" />
