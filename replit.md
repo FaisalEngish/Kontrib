@@ -23,6 +23,7 @@ The frontend uses React 18 with TypeScript and Vite, leveraging Shadcn/UI (based
 - **WhatsApp Integration**: Generates professional sharing messages and dynamic Open Graph meta tags.
 - **Dashboard System**: Separate dashboards for Admins (group management, analytics) and Members (contributions, payment history).
 - **Role-Based Navigation**: Navigation menus adapt based on user roles.
+- **Project Contribution Transparency**: Members can view detailed contributor lists for any project, showing all confirmed contributions sorted by amount, total contributions, and remaining balance. Accessible via "View Contributors" button on project cards.
 
 ### System Design Choices
 - **Database**: PostgreSQL with Drizzle ORM for a relational schema (Users, Groups, Members, Contributions, OTPs).
