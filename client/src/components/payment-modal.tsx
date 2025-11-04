@@ -21,6 +21,8 @@ const paymentFormSchema = insertContributionSchema.extend({
   groupId: true,
   projectId: true,
   userId: true,
+  paymentType: true,
+  status: true,
 });
 
 type PaymentFormData = z.infer<typeof paymentFormSchema>;
@@ -85,10 +87,12 @@ export function PaymentModal({ open, onOpenChange, project }: PaymentModalProps)
       
       const response = await apiRequest("POST", "/api/contributions", {
         ...data,
-        amount: data.amount,
+        amount: parseFloat(data.amount),
         projectId: project.id,
         groupId: project.groupId,
         userId: user.id,
+        paymentType: "bank_transfer",
+        status: "pending",
       });
       return response.json();
     },
