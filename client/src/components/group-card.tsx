@@ -144,24 +144,24 @@ export function GroupCard({
               </Button>
             </>
           ) : (
-            <>
-              <Button
-                variant="outline"
-                onClick={() => onViewDetails?.(group)}
-                className="flex-1"
-                data-testid={`view-group-${group.id}`}
-              >
-                <Eye className="h-4 w-4 mr-2" />
-                View Details
-              </Button>
-              <Button
-                onClick={() => onMakePayment?.(group)}
-                className="flex-1 bg-nigerian-green hover:bg-forest-green"
-                data-testid={`make-payment-${group.id}`}
-              >
-                Make Payment
-              </Button>
-            </>
+            <div className="flex flex-col space-y-3 sm:flex-row sm:space-x-4 sm:space-y-0 mt-4">
+                  <Button
+            variant="outline"
+            onClick={() => onViewDetails?.(group)}
+            className="w-full sm:flex-1" 
+            data-testid={`view-group-${group.id}`}
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            View Details
+          </Button>
+          <Button
+            onClick={() => onMakePayment?.(group)}
+            className="w-full sm:flex-1 bg-nigerian-green hover:bg-forest-green"
+            data-testid={`make-payment-${group.id}`}
+          >
+            Make Payment
+          </Button>
+        </div>
           )}
         </div>
       </CardContent>
