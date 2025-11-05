@@ -83,11 +83,8 @@ export function PaymentModal({ open, onOpenChange, project }: PaymentModalProps)
     mutationFn: async (data: PaymentFormData) => {
       if (!project || !user) throw new Error("Missing project or user");
       
-      console.log("Submitting payment data:", { ...data, projectId: project.id, groupId: project.groupId, userId: user.id });
-      
       const response = await apiRequest("POST", "/api/contributions", {
         ...data,
-        amount: parseFloat(data.amount),
         projectId: project.id,
         groupId: project.groupId,
         userId: user.id,
