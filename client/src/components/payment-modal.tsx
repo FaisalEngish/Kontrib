@@ -120,20 +120,6 @@ export function PaymentModal({ open, onOpenChange, project }: PaymentModalProps)
   });
 
   const onSubmit = (data: PaymentFormData) => {
-    console.log("Form submission data:", data);
-    console.log("Form errors:", form.formState.errors);
-    console.log("Form validation state:", form.formState.isValid);
-    console.log("Project data:", project);
-    console.log("User data:", user);
-    
-    if (!form.formState.isValid) {
-      console.error("Form validation failed");
-      Object.keys(form.formState.errors).forEach(key => {
-        console.error(`Validation error for ${key}:`, form.formState.errors[key as keyof typeof form.formState.errors]);
-      });
-      return;
-    }
-    
     createPaymentMutation.mutate(data);
   };
 
