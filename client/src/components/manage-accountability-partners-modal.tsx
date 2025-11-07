@@ -49,7 +49,7 @@ export function ManageAccountabilityPartnersModal({
 
   const addPartnerMutation = useMutation({
     mutationFn: async (userId: string) => {
-      return await apiRequest(`/api/groups/${groupId}/accountability-partners`, "POST", { userId });
+      return await apiRequest("POST", `/api/groups/${groupId}/accountability-partners`, { userId });
     },
     onSuccess: () => {
       toast({
@@ -70,7 +70,7 @@ export function ManageAccountabilityPartnersModal({
 
   const removePartnerMutation = useMutation({
     mutationFn: async (userId: string) => {
-      return await apiRequest(`/api/groups/${groupId}/accountability-partners/${userId}`, "DELETE");
+      return await apiRequest("DELETE", `/api/groups/${groupId}/accountability-partners/${userId}`);
     },
     onSuccess: () => {
       toast({
