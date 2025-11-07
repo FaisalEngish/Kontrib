@@ -25,9 +25,10 @@ import GroupDetails from "@/pages/group-details";
 import ProjectDetails from "@/pages/project-details";
 
 function Router() {
-  const [user, setUser] = useState<User | null>(getCurrentUser());
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
-  // Listen for auth state changes
+  // Initialize auth on mount
   useEffect(() => {
     const handleAuthStateChange = (event: CustomEvent) => {
       setUser(event.detail);
@@ -38,8 +39,14 @@ function Router() {
       setUser(currentUser);
     };
 
-    // Check auth on mount
-    checkAuth();
+    // Initialize auth with backend validation
+    const init = async () => {
+      await initializeAuth();
+      setUser(getCurrentUser());
+      setIsAuthLoading(false);
+    };
+    
+    init();
     
     // Listen for custom auth state changes
     window.addEventListener('authStateChanged', handleAuthStateChange as EventListener);
@@ -50,6 +57,18 @@ function Router() {
       window.removeEventListener('storage', checkAuth);
     };
   }, []);
+
+  // Show loading state while auth is initializing
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-green-600 border-r-transparent mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Switch>
@@ -101,11 +120,6 @@ function Router() {
 }
 
 function App() {
-  useEffect(() => {
-    // Initialize authentication on app start
-    initializeAuth();
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

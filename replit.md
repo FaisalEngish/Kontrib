@@ -12,9 +12,9 @@ Preferred communication style: Simple, everyday language.
 The frontend uses React 18 with TypeScript and Vite, leveraging Shadcn/UI (based on Radix UI) and Tailwind CSS. It features a custom Nigerian-themed color palette and a mobile-first design, including dynamic Open Graph meta tags for social sharing.
 
 ### Technical Implementations
-- **Frontend**: Utilizes React Query for state management, Wouter for routing, and React Hook Form with Zod for form validation. Client-side authentication is handled via `localStorage`.
+- **Frontend**: Utilizes React Query for state management, Wouter for routing, and React Hook Form with Zod for form validation. Client-side authentication is handled via `localStorage` with backend validation on page load.
 - **Backend**: Built with Node.js and Express.js, featuring Drizzle ORM for type-safe database operations and Zod for shared validation schemas.
-- **Authentication**: SMS-based OTP-only authentication system with role-based access control (Admin/Member) and global phone number validation.
+- **Authentication**: SMS-based OTP-only authentication system with role-based access control (Admin/Member) and global phone number validation. Sessions are validated against the database on page refresh with graceful fallback to cached data if backend is unreachable.
 - **Payment Processing**: Members upload proof of payment for admin approval; the system tracks transactions, progress, and payment history.
 
 ### Feature Specifications

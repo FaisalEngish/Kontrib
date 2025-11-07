@@ -496,13 +496,23 @@ export default function GroupRegistration() {
         </CardContent>
       </Card>
 
-      <Button 
-        onClick={() => setLocation("/member")} 
-        className="w-full bg-green-600 hover:bg-green-700"
-        data-testid="go-to-dashboard"
-      >
-        Go to Dashboard
-      </Button>
+      <div className="space-y-3">
+        <Button 
+          onClick={() => setLocation("/member")} 
+          className="w-full bg-green-600 hover:bg-green-700"
+          data-testid="go-to-dashboard"
+        >
+          Go to Dashboard
+        </Button>
+        <Button 
+          onClick={() => setLocation("/join-group")} 
+          variant="outline"
+          className="w-full"
+          data-testid="join-another-group"
+        >
+          Join Another Group
+        </Button>
+      </div>
     </div>
   );
 

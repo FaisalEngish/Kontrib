@@ -166,11 +166,24 @@ export default function MemberDashboard() {
           </CardHeader>
           <CardContent>
             {userGroups.length === 0 ? (
-              <div className="text-center py-8">
-                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No groups yet</h3>
-                <p className="text-gray-600 mb-4">
-                  You're not a member of any contribution groups yet. Ask an admin for an invitation link.
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Users className="h-8 w-8 text-green-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Ready to Join a Group?</h3>
+                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                  Get started by joining a contribution group. Paste your group invitation link below or ask your admin for one.
+                </p>
+                <Button 
+                  onClick={() => setLocation("/join-group")} 
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 text-lg"
+                  data-testid="button-join-group"
+                >
+                  <Users className="mr-2 h-5 w-5" />
+                  Join a Group
+                </Button>
+                <p className="text-sm text-gray-500 mt-4">
+                  Or browse available groups and request to join
                 </p>
               </div>
             ) : (

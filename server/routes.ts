@@ -762,6 +762,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Validate user session - used on page refresh
+  app.get("/api/auth/me", async (req, res) => {
+    try {
+      const { userId } = req.query;
+      
+      if (!userId || typeof userId !== 'string') {
+        return res.status(401).json({ message: "Unauthorized - no user ID provided" });
+      }
+      
+      // Verify user exists in database
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(401).json({ message: "Unauthorized - user not found" });
+      }
+      
+      res.json({ 
+        user: { ...user, password: undefined }
+      });
+    } catch (error) {
+      console.error("Auth validation error:", error);
+      res.status(500).json({ message: "Failed to validate session" });
+    }
+  });
+
   // OTP-based registration route
   app.post("/api/auth/register-with-otp", async (req, res) => {
     try {
