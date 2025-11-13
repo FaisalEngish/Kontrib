@@ -159,7 +159,7 @@ export function GroupCard({
             className="w-full sm:flex-1 bg-nigerian-green hover:bg-forest-green"
             data-testid={`make-payment-${group.id}`}
           >
-            Make Payment
+            Submit Payment Proof
           </Button>
         </div>
           )}

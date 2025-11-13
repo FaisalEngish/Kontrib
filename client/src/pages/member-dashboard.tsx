@@ -7,16 +7,23 @@ import { Navigation } from "@/components/navigation";
 import { GroupCard } from "@/components/group-card";
 import { PaymentModal } from "@/components/payment-modal";
 import { ProjectSelectionModal } from "@/components/project-selection-modal";
-import { 
-  DollarSign, 
-  Users, 
-  CheckCircle, 
+import {
+  DollarSign,
+  Users,
+  CheckCircle,
   ArrowDown,
-  Download
+  Download,
 } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 import { formatNaira } from "@/lib/currency";
-import { Group, GroupMember, GroupWithStats, Project, MemberWithContributions, ContributionWithDetails } from "@shared/schema";
+import {
+  Group,
+  GroupMember,
+  GroupWithStats,
+  Project,
+  MemberWithContributions,
+  ContributionWithDetails,
+} from "@shared/schema";
 import { Button } from "@/components/ui/button";
 
 type UserGroupMembership = GroupMember & { group: GroupWithStats };
@@ -29,17 +36,22 @@ export default function MemberDashboard() {
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
-  const { data: userGroups = [], isLoading: groupsLoading } = useQuery<UserGroupMembership[]>({
+  const { data: userGroups = [], isLoading: groupsLoading } = useQuery<
+    UserGroupMembership[]
+  >({
     queryKey: ["/api/groups", "user", user?.id],
     enabled: !!user,
   });
 
-  const { data: userStats, isLoading: statsLoading } = useQuery<MemberWithContributions>({
-    queryKey: ["/api/stats", "user", user?.id],
-    enabled: !!user,
-  });
+  const { data: userStats, isLoading: statsLoading } =
+    useQuery<MemberWithContributions>({
+      queryKey: ["/api/stats", "user", user?.id],
+      enabled: !!user,
+    });
 
-  const { data: paymentHistory = [], isLoading: historyLoading } = useQuery<ContributionWithDetails[]>({
+  const { data: paymentHistory = [], isLoading: historyLoading } = useQuery<
+    ContributionWithDetails[]
+  >({
     queryKey: ["/api/contributions", "user", user?.id],
     enabled: !!user,
   });
@@ -86,14 +98,13 @@ export default function MemberDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 pb-20 sm:pb-0">
       <Navigation />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Dashboard Header */}
         <div className="mb-8">
           <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-2xl font-bold mb-2">Member Dashboard</h2>
                 <p className="text-blue-100">Welcome, {user?.fullName}</p>
                 <p className="text-blue-200 text-sm">
                   Member of {userGroups.length} active groups
@@ -104,7 +115,7 @@ export default function MemberDashboard() {
         </div>
 
         {/* Member Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -157,7 +168,7 @@ export default function MemberDashboard() {
               </div>
             </CardContent>
           </Card>
-        </div>
+        </div> */}
 
         {/* My Groups */}
         <Card className="mb-8">
@@ -170,12 +181,15 @@ export default function MemberDashboard() {
                 <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Users className="h-8 w-8 text-green-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Ready to Join a Group?</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Ready to Join a Group?
+                </h3>
                 <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                  Get started by joining a contribution group. Paste your group invitation link below or ask your admin for one.
+                  Get started by joining a contribution group. Paste your group
+                  invitation link below or ask your admin for one.
                 </p>
-                <Button 
-                  onClick={() => setLocation("/join-group")} 
+                <Button
+                  onClick={() => setLocation("/join-group")}
                   className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 text-lg"
                   data-testid="button-join-group"
                 >
@@ -220,19 +234,29 @@ export default function MemberDashboard() {
             {paymentHistory.length === 0 ? (
               <div className="text-center py-8">
                 <DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No payments yet</h3>
-                <p className="text-gray-600">Your payment history will appear here once you make contributions.</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No payments yet
+                </h3>
+                <p className="text-gray-600">
+                  Your payment history will appear here once you make
+                  contributions.
+                </p>
               </div>
             ) : (
               <div className="space-y-4">
                 {paymentHistory.map((payment) => (
-                  <div key={payment.id} className="flex items-center justify-between">
+                  <div
+                    key={payment.id}
+                    className="flex items-center justify-between"
+                  >
                     <div className="flex items-center space-x-4">
                       <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
                         <ArrowDown className="text-green-600 h-5 w-5" />
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{payment.groupName}</p>
+                        <p className="font-medium text-gray-900">
+                          {payment.groupName}
+                        </p>
                         <p className="text-sm text-gray-600">
                           {payment.description || "Contribution"}
                         </p>
@@ -242,7 +266,9 @@ export default function MemberDashboard() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-gray-900">{formatNaira(payment.amount)}</p>
+                      <p className="font-semibold text-gray-900">
+                        {formatNaira(payment.amount)}
+                      </p>
                       <Badge className="bg-green-100 text-green-800">
                         {payment.status}
                       </Badge>
