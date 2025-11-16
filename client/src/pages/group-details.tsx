@@ -18,7 +18,12 @@ import {
 } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 import { formatNaira } from "@/lib/currency";
-import { Group, Project, ContributionWithDetails, User as UserType } from "@shared/schema";
+import {
+  Group,
+  Project,
+  ContributionWithDetails,
+  User as UserType,
+} from "@shared/schema";
 import { format } from "date-fns";
 
 interface GroupMemberWithUser {
@@ -379,7 +384,9 @@ export default function GroupDetails() {
                             {member.user?.fullName || "Member"}
                           </p>
                           <p className="text-xs text-gray-500">
-                            {member.user?.username ? `@${member.user.username}` : ""}
+                            {member.user?.username
+                              ? `@${member.user.username}`
+                              : ""}
                           </p>
                         </div>
                       </div>
