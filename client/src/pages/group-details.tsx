@@ -21,6 +21,17 @@ import { formatNaira } from "@/lib/currency";
 import { Group, Project, ContributionWithDetails } from "@shared/schema";
 import { format } from "date-fns";
 
+// interface GroupMemberWithUser {
+//   id: string;
+//   groupId: string;
+//   userId: string;
+//   contributedAmount: string;
+//   status: string;
+//   joinedAt: Date;
+//   userName: string;
+//   userFullName: string;
+// }
+
 interface GroupMemberWithUser {
   id: string;
   groupId: string;
@@ -28,8 +39,13 @@ interface GroupMemberWithUser {
   contributedAmount: string;
   status: string;
   joinedAt: Date;
-  userName: string;
-  userFullName: string;
+
+  // From API
+  userName: string | null;
+  userFullName?: string | null;
+
+  // Possible alternative field from API
+  fullName?: string | null;
 }
 
 export default function GroupDetails() {
@@ -190,7 +206,7 @@ export default function GroupDetails() {
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -261,7 +277,7 @@ export default function GroupDetails() {
               </div>
             </CardContent>
           </Card>
-        </div>
+        </div> */}
 
         {/* Progress Bar */}
         <Card className="mb-8">
@@ -377,10 +393,13 @@ export default function GroupDetails() {
                         </div>
                         <div>
                           <p className="font-medium text-gray-900">
-                            {member.userFullName}
+                            {member.userFullName ||
+                              member.fullName ||
+                              member.userName ||
+                              "Member"}
                           </p>
                           <p className="text-xs text-gray-500">
-                            @{member.userName}
+                            {member.userName ? `@${member.userName}` : ""}
                           </p>
                         </div>
                       </div>
