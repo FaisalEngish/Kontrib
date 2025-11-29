@@ -88,7 +88,14 @@ app.use((req, res, next) => {
 
   const DEFAULT_PORT = parseInt(process.env.PORT || "5000", 10);
 
-  const tryHosts = [process.env.HOST || "127.0.0.1", "0.0.0.0", "::"];
+  const DEFAULT_HOST = process.env.HOST || "0.0.0.0";
+
+  const tryHosts = [
+    process.env.HOST || DEFAULT_HOST,
+    "0.0.0.0",
+    "127.0.0.1",
+    "::",
+  ];
 
   async function attemptListen(
     port: number,
